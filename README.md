@@ -24,11 +24,11 @@ Phosphorite includes:
 - rich theme presets and visual effects
 - ... and many more awesome features!
 
-## ☕ Support This Project
+## Support This Project
 
 While this is not my day job, a lot of time and effort went into building Phosphorite. If you find it useful for your games, consider buying me a coffee! Your support helps me dedicate more time to improving Phosphorite and creating more awesome open-source tools like this one.
 
-[![Ko-fi](https://img.shields.io/badge/Ko--fi-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/keelhauler)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B41SLBNR)
 
 ## Quick Start
 
