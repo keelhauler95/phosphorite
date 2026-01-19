@@ -1,0 +1,58 @@
+@font-face {
+    font-family: "Vga";
+    src: url("/fonts/vga.woff") format("woff"),
+        url("/fonts/vga.woff2") format("woff2"),
+        url("/fonts/vga.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Dignity of Labour";
+    src: url("/fonts/dignity-of-labour.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Lovecraft Diary";
+    src: url("/fonts/lovecraft-diary.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "SAIBA 45";
+    src: url("/fonts/SAIBA-45.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Nasalization";
+    src: url("/fonts/nasalization.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+// TODO: add theme mixins
+$font-family: var(--player-font-family, "Vga", Menlo, Monaco, Consolas, "Courier New", monospace);
+
+$scalefactor: 2.0;
+// base metrics used throughout the terminal UI
+$font-base: 24px * $scalefactor;
+$line-base: 19px * $scalefactor;
+
+@function terminal-font($multiplier: 1) {
+    $value: $font-base * $multiplier;
+    @return calc(#{$value} * var(--player-type-scale, 1));
+}
+
+@function terminal-line($multiplier: 1) {
+    $value: $line-base * $multiplier;
+    @return calc(#{$value} * var(--player-line-height-scale, 1));
+}

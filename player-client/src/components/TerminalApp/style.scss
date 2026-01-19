@@ -1,0 +1,116 @@
+@use "../../assets/sass/colors" as *;
+@use "../../assets/sass/fonts" as *;
+
+.terminal-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: transparent;
+  font-family: $font-family;
+  font-size: terminal-font();
+  color: $foreground;
+  overflow: hidden;
+
+  .terminal-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 terminal-line() terminal-line(0.5) terminal-line();
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    scroll-behavior: smooth;
+    line-height: terminal-line();
+
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: foreground-alpha(0.3);
+      border-radius: 4px;
+
+      &:hover {
+        background: foreground-alpha(0.5);
+      }
+    }
+
+    .terminal-completed {
+      color: $foreground;
+      font-family: $font-family;
+      font-size: terminal-font();
+      line-height: terminal-line();
+      white-space: pre-wrap;
+    }
+
+    .terminal-rejected {
+      color: rgba(255, 100, 100, 0.9); // Slight red hue
+      
+      * {
+        color: rgba(255, 100, 100, 0.9) !important;
+      }
+    }
+
+    .terminal-waiting {
+      color: $foreground;
+      font-family: $font-family;
+      font-size: terminal-font();
+      line-height: terminal-line();
+      white-space: pre-wrap;
+    }
+
+    .terminal-input-line {
+      display: inline-flex;
+      align-items: baseline;
+      width: 100%;
+
+      .terminal-prompt {
+        color: $foreground;
+        font-family: $font-family;
+        font-size: terminal-font();
+        line-height: terminal-line();
+        flex-shrink: 0;
+      }
+
+      .terminal-input-inline {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: $foreground;
+        font-family: $font-family;
+        font-size: terminal-font();
+        outline: none;
+        padding: 0;
+        margin: 0;
+        caret-color: $foreground;
+        line-height: terminal-line();
+
+        &::placeholder {
+          color: foreground-alpha(0.3);
+        }
+
+        &:disabled {
+          color: foreground-alpha(0.6);
+          cursor: not-allowed;
+        }
+
+        // Remove default browser styling
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+
+        &[type="number"] {
+          -moz-appearance: textfield;
+          appearance: textfield;
+        }
+      }
+    }
+  }
+}

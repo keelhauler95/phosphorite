@@ -1,0 +1,49 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: phosphorite-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PHOS_BACKEND_PORT: ${PHOS_BACKEND_PORT:-3100}
+      PHOS_BACKEND_HOST: 0.0.0.0
+    ports:
+      - "${PHOS_BACKEND_PORT:-3100}:3100"
+    volumes:
+      - ./backend/data:/app/data
+
+  gm-client:
+    build:
+      context: ./gm-client
+      dockerfile: Dockerfile
+    container_name: phosphorite-gm-client
+    depends_on:
+      - backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PHOS_BACKEND_PORT: ${PHOS_BACKEND_PORT:-3100}
+      PHOS_BACKEND_HOST: backend
+    ports:
+      - "${PHOS_GM_PORT:-5173}:80"
+
+  player-client:
+    build:
+      context: ./player-client
+      dockerfile: Dockerfile
+    container_name: phosphorite-player-client
+    depends_on:
+      - backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PHOS_BACKEND_PORT: ${PHOS_BACKEND_PORT:-3100}
+      PHOS_BACKEND_HOST: backend
+    ports:
+      - "${PHOS_PLAYER_PORT:-5174}:80"

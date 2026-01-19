@@ -1,0 +1,134 @@
+@use "../../assets/sass/colors" as *;
+@use "../../assets/sass/fonts" as *;
+
+.player-map-app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  color: $foreground;
+}
+
+.map-layer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: terminal-line();
+  font-family: $font-family;
+}
+
+.layer-button {
+  background: none;
+  border: none;
+  color: $foreground;
+  cursor: pointer;
+  font-family: $font-family;
+  font-size: terminal-font();
+  padding: 0;
+  display: inline-flex;
+  align-items: baseline;
+  transition: color 0.15s ease, text-shadow 0.15s ease, transform 0.15s ease;
+
+  .teletype {
+    display: inline-block;
+
+    pre {
+      display: inline;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    color: $foreground-light;
+    text-shadow: 0 0 8px foreground-alpha(0.8);
+    transform: translateX(4px);
+  }
+
+  &:not(:disabled):active {
+    color: $foreground-dark;
+  }
+
+  &:focus-visible {
+    outline: 1px dashed foreground-alpha(0.7);
+    outline-offset: 4px;
+  }
+}
+
+.layer-status {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: terminal-font();
+}
+
+.layer-index {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.map-stage {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.map-canvas {
+  position: relative;
+  width: 100%;
+  max-width: min(80vh, 960px);
+  aspect-ratio: 1 / 1;
+}
+
+.map-canvas .image-app {
+  position: relative;
+  width: 100%;
+}
+
+.marker-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.map-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  transition: left 0.3s ease, top 0.3s ease;
+}
+
+.map-marker__icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+}
+
+.map-marker__label {
+  font-family: $font-family;
+  font-size: 0.55rem;
+  color: #000;
+  padding: 0.02rem 0.2rem;
+  border-radius: 0;
+  letter-spacing: 0.08em;
+  margin-top: -0.1rem;
+}
+
+.map-missing {
+  font-family: $font-family;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  text-align: center;
+  padding: 1.5rem 0;
+  color: foreground-alpha(0.8);
+}
+
+/* Marker animation removed per requirements */

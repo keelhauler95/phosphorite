@@ -1,0 +1,38 @@
+@use "sass:color";
+
+// Default palette (overridden at runtime through CSS variables)
+$foreground-default: #d4f9fa;
+$background-default: #000c0c;
+$alert-default: #ff3c00;
+
+$foreground-rgb-default: 212, 249, 250;
+$background-rgb-default: 0, 12, 12;
+$alert-rgb-default: 255, 60, 0;
+
+$foreground: var(--player-foreground, #{$foreground-default});
+$background: var(--player-background, #{$background-default});
+$alert: var(--player-alert, #{$alert-default});
+
+@function foreground-alpha($alpha) {
+	@return rgba(var(--player-foreground-rgb, #{$foreground-rgb-default}), $alpha);
+}
+
+@function background-alpha($alpha) {
+	@return rgba(var(--player-background-rgb, #{$background-rgb-default}), $alpha);
+}
+
+@function alert-alpha($alpha) {
+	@return rgba(var(--player-alert-rgb, #{$alert-rgb-default}), $alpha);
+}
+
+$foreground-light: var(--player-foreground-light, #{color.adjust($foreground-default, $lightness: 10%)});
+$foreground-dark: var(--player-foreground-dark, #{color.adjust($foreground-default, $lightness: -10%)});
+
+$scanlines-foreground: var(--player-scanlines-foreground, #{foreground-alpha(0.1)});
+$scanlines-background: var(--player-scanlines-background, #{background-alpha(0.5)});
+
+$foreground-glow: var(--player-foreground-glow, 0 0 5px #{foreground-alpha(0.5)});
+$background-glow: var(--player-background-glow, 0 0 2px #{background-alpha(0.5)});
+$alert-glow: var(--player-alert-glow, 0 0 5px #{alert-alpha(0.5)});
+
+$background-gradient: var(--player-background-gradient, radial-gradient(#{foreground-alpha(0.15)}, #{background-alpha(1)} 100%));

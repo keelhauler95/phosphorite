@@ -1,0 +1,151 @@
+@use "../../assets/sass/colors" as *;
+@use "../../assets/sass/fonts" as *;
+
+.logbook-app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  white-space: pre-wrap;
+
+  .logbook-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: terminal-line();
+    margin-bottom: terminal-line(2);
+  }
+
+  .logbook-date-section {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: terminal-line();
+    flex: 1;
+    justify-content: center;
+
+    .logbook-date-inputs {
+      display: flex;
+      align-items: center;
+      gap: terminal-line(0.25);
+      font-size: terminal-font(1.05);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: $foreground;
+
+      .date-label {
+        color: $foreground;
+      }
+
+      .date-input {
+        background: transparent;
+        border: none;
+        color: $foreground;
+        font-family: $font-family;
+        font-size: terminal-font(1.05);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 0;
+        text-align: left;
+        min-width: 3ch;
+        appearance: textfield;
+        -moz-appearance: textfield;
+        outline: none;
+
+        &:focus {
+          text-shadow: 0 0 4px foreground-alpha(0.6);
+        }
+
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+      }
+
+      .date-input-era {
+        width: 8ch;
+        min-width: 8ch;
+      }
+
+      .date-input-day {
+        width: 4ch;
+        min-width: 4ch;
+      }
+    }
+  }
+
+  .logbook-next {
+    margin-left: auto;
+  }
+
+  .logbook-link {
+    background: none;
+    border: none;
+    color: $foreground;
+    cursor: pointer;
+    font-family: $font-family;
+    font-size: terminal-font();
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.15s ease, text-shadow 0.15s ease, transform 0.15s ease;
+
+    .teletype {
+      display: inline-block;
+
+      pre {
+        display: inline;
+        margin: 0;
+        padding: 0;
+      }
+    }
+
+    &:hover {
+      color: $foreground-light;
+      text-shadow: 0 0 8px foreground-alpha(0.8);
+      transform: translateX(4px);
+    }
+
+    &:active {
+      color: $foreground-dark;
+    }
+
+    &:focus-visible {
+      outline: 1px dashed foreground-alpha(0.7);
+      outline-offset: 4px;
+    }
+  }
+
+  .logbook-entries {
+    width: 100%;
+    margin-top: terminal-line(0.5);
+
+    .no-entries {
+      .teletype {
+        color: foreground-alpha(0.6);
+        font-style: italic;
+
+        pre {
+          font-style: italic;
+        }
+      }
+    }
+
+    .entries-list {
+      display: flex;
+      flex-direction: column;
+      gap: terminal-line(0.75);
+    }
+
+    .log-entry {
+      color: $foreground;
+
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: terminal-line();
+      }
+    }
+  }
+}

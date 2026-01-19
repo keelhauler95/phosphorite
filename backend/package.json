@@ -1,0 +1,31 @@
+{
+  "name": "phosphorite-backend",
+  "version": "0.1.0",
+  "description": "Backend for Phosphorite - TTRPG Game State Management",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "db:init": "ts-node src/db/init.ts"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "handlebars": "^4.7.8",
+    "socket.io": "^4.8.3",
+    "sql.js": "^1.13.0",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/handlebars": "^4.1.0",
+    "@types/node": "^25.0.8",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,112 @@
+@use "../../assets/sass/colors" as *;
+@use "../../assets/sass/fonts" as *;
+
+.main-menu {
+    font-family: $font-family;
+    font-size: terminal-font();
+    line-height: terminal-line();
+    color: $foreground;
+    text-shadow: $foreground-glow;
+    padding: terminal-line();
+    height: 100%;
+    white-space: pre-wrap;
+
+    .menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .menu-header-left {
+            flex: 1;
+        }
+
+        .menu-header-right {
+            color: foreground-alpha(0.8);
+            font-size: terminal-font(0.9);
+        }
+    }
+
+    .menu-header-separator {
+        margin-top: terminal-line(0.5);
+    }
+
+    .menu-content {
+        .menu-section {
+            margin-bottom: terminal-line(2);
+        }
+
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-entry {
+            display: flex;
+            align-items: baseline;
+            gap: terminal-line(0.25);
+            margin-bottom: terminal-line(0.35);
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        .menu-link {
+            color: $foreground;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            display: inline-block;
+
+            .teletype {
+                display: inline-block;
+                
+                pre {
+                    display: inline;
+                }
+            }
+
+            &:hover {
+                color: $foreground-light;
+                text-shadow: 0 0 8px foreground-alpha(0.8);
+                transform: translateX(4px);
+            }
+
+            &:active {
+                color: $foreground-dark;
+            }
+        }
+
+        .menu-category {
+            color: foreground-alpha(0.5);
+            font-size: terminal-font(0.8);
+
+            .teletype {
+                display: inline-block;
+                
+                pre {
+                    display: inline;
+                }
+            }
+        }
+
+        .menu-empty {
+            color: foreground-alpha(0.5);
+            font-style: italic;
+        }
+
+        .unread-badge {
+            margin-left: 0;
+            color: foreground-alpha(0.6);
+            text-shadow: 0 0 4px foreground-alpha(0.4);
+
+            .teletype {
+                display: inline-block;
+                
+                pre {
+                    display: inline;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,1075 @@
+import { useState, useEffect } from 'react';
+import { GameApp, Character, TerminalAppData, TerminalCommand, TerminalParameter, TerminalCommandExecution } from '../types';
+import { appsApi } from '../services/api';
+import { v4 as uuidv4 } from 'uuid';
+import AccessControlPanel from './AccessControlPanel';
+
+// Create standard commands that every terminal should have
+const createStandardCommands = (): TerminalCommand[] => {
+  return [
+    {
+      id: uuidv4(),
+      name: 'help',
+      description: 'Display all available commands',
+      parameters: [],
+      responseTemplate: '{{commandList}}',
+      requiresManualReview: false
+    },
+    {
+      id: uuidv4(),
+      name: 'man',
+      description: 'Display detailed information about a specific command',
+      parameters: [
+        {
+          name: 'command',
+          type: 'string',
+          required: true,
+          description: 'The name of the command to get information about'
+        }
+      ],
+      responseTemplate: '{{manualPage}}',
+      requiresManualReview: false
+    },
+    {
+      id: uuidv4(),
+      name: 'exit',
+      description: 'Exit the terminal session',
+      parameters: [],
+      responseTemplate: '[TERMINAL_EXIT]',
+      requiresManualReview: false
+    }
+  ];
+};
+
+interface Props {
+  app: GameApp;
+  characters: Character[];
+  onBack?: () => void;
+  onDelete?: (id: string) => void;
+}
+
+function TerminalApp({ app, characters, onBack, onDelete }: Props) {
+  // Initialize with standard commands if empty
+  const getInitialData = (): TerminalAppData => {
+    if (app.data) {
+      const parsed = app.data;
+      // If there are no commands, add standard ones
+      if (!parsed.commands || parsed.commands.length === 0) {
+        return {
+          commands: createStandardCommands(),
+          executionHistory: parsed.executionHistory || []
+        };
+      }
+      return parsed;
+    }
+    return {
+      commands: createStandardCommands(),
+      executionHistory: []
+    };
+  };
+
+  const terminalData: TerminalAppData = getInitialData();
+  
+  const terminalData: TerminalAppData = getInitialData();
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [error, setError] = useState<string | null>(null);
+  const [editingCommandId, setEditingCommandId] = useState<string | null>(null);
+  const [showCommandForm, setShowCommandForm] = useState(false);
+  const [commandForm, setCommandForm] = useState<Partial<TerminalCommand>>({
+    name: '',
+    description: '',
+    parameters: [],
+    responseTemplate: '',
+    requiresManualReview: false
+  });
+  const [parameterForm, setParameterForm] = useState<TerminalParameter>({
+    name: '',
+    type: 'string',
+    required: false,
+    description: ''
+  });
+  const [showParameterForm, setShowParameterForm] = useState(false);
+  const [editingParameterIndex, setEditingParameterIndex] = useState<number | null>(null);
+  const [selectedTab, setSelectedTab] = useState<'commands' | 'queue' | 'history' | 'test'>('commands');
+  const [testInput, setTestInput] = useState('');
+  const [testResponse, setTestResponse] = useState('');
+  const [testError, setTestError] = useState('');
+  const [isTesting, setIsTesting] = useState(false);
+
+  useEffect(() => {
+    setSelectedUsers(new Set(app.allowed_users));
+  }, [app.allowed_users]);
+
+  const toggleUser = async (username: string) => {
+    const newUsers = new Set(selectedUsers);
+    if (newUsers.has(username)) {
+      newUsers.delete(username);
+    } else {
+      newUsers.add(username);
+    }
+    setSelectedUsers(newUsers);
+    
+    setError(null);
+    try {
+      await appsApi.update(app.id, { allowed_users: Array.from(newUsers) });
+    } catch (err: any) {
+      console.error('Failed to update allowed users:', err);
+      setError(err.response?.data?.error || 'Failed to update allowed users');
+      setSelectedUsers(new Set(app.allowed_users));
+    }
+  };
+
+  const saveAppData = async (newData: TerminalAppData) => {
+    setError(null);
+    try {
+      await appsApi.update(app.id, { data: newData });
+    } catch (error: any) {
+      console.error('Failed to save terminal data:', error);
+      setError(error.response?.data?.error || 'Failed to save terminal data');
+    }
+  };
+
+  // Command Management
+  const resetCommandForm = () => {
+    setCommandForm({
+      name: '',
+      description: '',
+      parameters: [],
+      responseTemplate: '',
+      requiresManualReview: false
+    });
+    setEditingCommandId(null);
+    setShowCommandForm(false);
+  };
+
+  const handleAddCommand = () => {
+    setCommandForm({
+      name: '',
+      description: '',
+      parameters: [],
+      responseTemplate: '',
+      requiresManualReview: false
+    });
+    setEditingCommandId(null);
+    setShowCommandForm(true);
+  };
+
+  const handleEditCommand = (command: TerminalCommand) => {
+    setCommandForm(command);
+    setEditingCommandId(command.id);
+    setShowCommandForm(true);
+  };
+
+  const handleSaveCommand = () => {
+    if (!commandForm.name?.trim()) {
+      alert('Command name is required');
+      return;
+    }
+
+    const command: TerminalCommand = {
+      id: editingCommandId || uuidv4(),
+      name: commandForm.name.trim(),
+      description: commandForm.description || '',
+      parameters: commandForm.parameters || [],
+      responseTemplate: commandForm.responseTemplate || '',
+      requiresManualReview: commandForm.requiresManualReview || false
+    };
+
+    let newCommands: TerminalCommand[];
+    if (editingCommandId) {
+      newCommands = terminalData.commands.map(cmd => cmd.id === editingCommandId ? command : cmd);
+    } else {
+      newCommands = [...terminalData.commands, command];
+    }
+
+    saveAppData({
+      ...terminalData,
+      commands: newCommands
+    });
+
+    resetCommandForm();
+  };
+
+  const handleDeleteCommand = (commandId: string) => {
+    if (!confirm('Are you sure you want to delete this command?')) return;
+
+    const newCommands = terminalData.commands.filter(cmd => cmd.id !== commandId);
+    saveAppData({
+      ...terminalData,
+      commands: newCommands
+    });
+  };
+
+  // Parameter Management
+  const resetParameterForm = () => {
+    setParameterForm({
+      name: '',
+      type: 'string',
+      required: false,
+      description: ''
+    });
+    setEditingParameterIndex(null);
+    setShowParameterForm(false);
+  };
+
+  const handleAddParameter = () => {
+    if (!parameterForm.name.trim()) {
+      alert('Parameter name is required');
+      return;
+    }
+
+    const newParameters = [...(commandForm.parameters || [])];
+    
+    if (editingParameterIndex !== null) {
+      newParameters[editingParameterIndex] = parameterForm;
+    } else {
+      newParameters.push(parameterForm);
+    }
+
+    setCommandForm({
+      ...commandForm,
+      parameters: newParameters
+    });
+
+    resetParameterForm();
+  };
+
+  const handleEditParameter = (index: number) => {
+    setParameterForm(commandForm.parameters![index]);
+    setEditingParameterIndex(index);
+    setShowParameterForm(true);
+  };
+
+  const handleDeleteParameter = (index: number) => {
+    const newParameters = commandForm.parameters!.filter((_, i) => i !== index);
+    setCommandForm({
+      ...commandForm,
+      parameters: newParameters
+    });
+  };
+
+  // Queue Management
+  const getPendingExecutions = (): TerminalCommandExecution[] => {
+    return terminalData.executionHistory.filter(exec => exec.status === 'pending');
+  };
+
+  const handleApproveExecution = (executionId: string, response: string) => {
+    const newHistory = terminalData.executionHistory.map(exec =>
+      exec.id === executionId
+        ? { ...exec, status: 'approved' as const, response }
+        : exec
+    );
+
+    saveAppData({
+      ...terminalData,
+      executionHistory: newHistory
+    });
+  };
+
+  const handleRejectExecution = (executionId: string, response: string) => {
+    const newHistory = terminalData.executionHistory.map(exec =>
+      exec.id === executionId
+        ? { ...exec, status: 'rejected' as const, response }
+        : exec
+    );
+
+    saveAppData({
+      ...terminalData,
+      executionHistory: newHistory
+    });
+  };
+
+  // Test Command Handler
+  const handleTestCommand = () => {
+    setTestError('');
+    setTestResponse('');
+    
+    if (!testInput.trim()) {
+      setTestError('Please enter a command to test');
+      return;
+    }
+
+    setIsTesting(true);
+
+    try {
+      // Parse the input (simple parsing: command -param1 value1 -param2 value2)
+      const parts = testInput.trim().split(/\s+/);
+      const commandName = parts[0];
+      
+      // Find the command definition
+      const command = terminalData.commands.find(cmd => cmd.name.toLowerCase() === commandName.toLowerCase());
+      
+      if (!command) {
+        setTestError(`Command "${commandName}" not found. Available commands: ${terminalData.commands.map(c => c.name).join(', ')}`);
+        setIsTesting(false);
+        return;
+      }
+
+      // Parse parameters
+      const parsedParams: { [key: string]: any } = {};
+      for (let i = 1; i < parts.length; i++) {
+        if (parts[i].startsWith('-')) {
+          const paramName = parts[i].substring(1);
+          const paramDef = command.parameters.find(p => p.name.toLowerCase() === paramName.toLowerCase());
+          
+          if (!paramDef) {
+            setTestError(`Unknown parameter: ${paramName}. Available parameters: ${command.parameters.map(p => p.name).join(', ')}`);
+            setIsTesting(false);
+            return;
+          }
+
+          // Get the value (next part)
+          if (i + 1 >= parts.length) {
+            setTestError(`Missing value for parameter: ${paramName}`);
+            setIsTesting(false);
+            return;
+          }
+
+          let value: any = parts[i + 1];
+          
+          // Type conversion
+          if (paramDef.type === 'number') {
+            value = parseFloat(value);
+            if (isNaN(value)) {
+              setTestError(`Parameter ${paramName} must be a number`);
+              setIsTesting(false);
+              return;
+            }
+          } else if (paramDef.type === 'boolean') {
+            value = value.toLowerCase() === 'true' || value === '1';
+          }
+
+          parsedParams[paramDef.name] = value;
+          i++; // Skip the value in next iteration
+        }
+      }
+
+      // Check required parameters
+      for (const param of command.parameters) {
+        if (param.required && !(param.name in parsedParams)) {
+          setTestError(`Required parameter missing: ${param.name}`);
+          setIsTesting(false);
+          return;
+        }
+      }
+
+      // Create execution record
+      const execution: TerminalCommandExecution = {
+        id: uuidv4(),
+        commandId: command.id,
+        username: '[TEST]',
+        input: testInput.trim(),
+        parsedCommand: commandName,
+        parsedParameters: parsedParams,
+        timestamp: JSON.stringify({ era: 0, day: 1, hour: 0, minute: 0, second: 0 }), // Placeholder time
+        status: command.requiresManualReview ? 'pending' : 'auto-responded',
+        response: ''
+      };
+
+      if (command.requiresManualReview) {
+        // Add to queue and switch to queue tab
+        const newHistory = [...terminalData.executionHistory, execution];
+        saveAppData({
+          ...terminalData,
+          executionHistory: newHistory
+        });
+        
+        setTestResponse(`✓ Command parsed successfully!\n\n⚠️ This command requires manual review.\n\nThe command has been added to the Review Queue.\nSwitch to the "Review Queue" tab to review and respond to it.`);
+        setIsTesting(false);
+      } else {
+        // Generate auto-response
+        let response = command.responseTemplate;
+        
+        // Handle special standard commands
+        if (command.name === 'help') {
+          // Generate list of all commands
+          response = 'Available Commands:\n\n';
+          terminalData.commands.forEach(cmd => {
+            response += `${cmd.name} - ${cmd.description}\n`;
+          });
+          response += '\nUse "man <command>" for detailed information about a specific command.';
+        } else if (command.name === 'man') {
+          // Generate manual page for the specified command
+          const targetCommandName = parsedParams['command'];
+          const targetCommand = terminalData.commands.find(c => c.name.toLowerCase() === targetCommandName.toLowerCase());
+          
+          if (!targetCommand) {
+            response = `No manual entry for command: ${targetCommandName}\n\nUse "help" to see all available commands.`;
+          } else {
+            response = `COMMAND: ${targetCommand.name}\n\n`;
+            response += `DESCRIPTION:\n  ${targetCommand.description}\n\n`;
+            
+            if (targetCommand.parameters.length > 0) {
+              response += `PARAMETERS:\n`;
+              targetCommand.parameters.forEach(param => {
+                const req = param.required ? '[REQUIRED]' : '[OPTIONAL]';
+                response += `  -${param.name} (${param.type}) ${req}\n`;
+                response += `    ${param.description}\n\n`;
+              });
+            } else {
+              response += `PARAMETERS:\n  None\n\n`;
+            }
+            
+            if (targetCommand.requiresManualReview) {
+              response += `NOTE: This command requires manual review by the GM.\n`;
+            }
+          }
+        } else if (command.name === 'exit') {
+          // Exit command - special handling
+          response = command.responseTemplate; // Will be [TERMINAL_EXIT]
+        } else {
+          // Standard template replacement for custom commands
+          Object.entries(parsedParams).forEach(([key, value]) => {
+            response = response.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
+          });
+        }
+
+        execution.response = response;
+
+        // Add to history
+        const newHistory = [...terminalData.executionHistory, execution];
+        saveAppData({
+          ...terminalData,
+          executionHistory: newHistory
+        });
+
+        setTestResponse(`✓ Command executed successfully!\n\nParsed Command: ${commandName}\nParameters: ${JSON.stringify(parsedParams, null, 2)}\n\nAuto-Response:\n${response}\n\nThis execution has been added to the History.`);
+        setIsTesting(false);
+      }
+      
+    } catch (err: any) {
+      setTestError(`Parsing error: ${err.message}`);
+      setIsTesting(false);
+    }
+  };
+
+  const handleDelete = () => {
+    if (onDelete && confirm(`Are you sure you want to delete "${app.name}"?`)) {
+      onDelete(app.id);
+    }
+  };
+
+  const formatTimestamp = (timestamp: string): string => {
+    try {
+      const time = JSON.parse(timestamp);
+      return `E${time.era} D${time.day} ${String(time.hour).padStart(2, '0')}:${String(time.minute).padStart(2, '0')}`;
+    } catch {
+      return timestamp;
+    }
+  };
+
+  return (
+    <div className="app-interface">
+      <div className="app-interface-header">
+        <div className="app-interface-title-row">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button onClick={onBack} className="back-btn" title="Back to apps list">
+              ← Back
+            </button>
+            <h2>{app.name}</h2>
+            <span className="category-badge">{app.category}</span>
+          </div>
+          <button onClick={handleDelete} className="delete-btn" title="Delete this app">
+            Delete App
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div className="error-box">
+          <p>{error}</p>
+        </div>
+      )}
+
+      <div className="app-interface-content">
+        {/* Tab Navigation */}
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', borderBottom: '1px solid #444' }}>
+          <button
+            onClick={() => setSelectedTab('commands')}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: selectedTab === 'commands' ? '#2d3548' : 'transparent',
+              border: 'none',
+              borderBottom: selectedTab === 'commands' ? '2px solid #007bff' : 'none',
+              color: '#fff',
+              cursor: 'pointer'
+            }}
+          >
+            Commands ({terminalData.commands.length})
+          </button>
+          <button
+            onClick={() => setSelectedTab('queue')}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: selectedTab === 'queue' ? '#2d3548' : 'transparent',
+              border: 'none',
+              borderBottom: selectedTab === 'queue' ? '2px solid #007bff' : 'none',
+              color: '#fff',
+              cursor: 'pointer'
+            }}
+          >
+            Review Queue ({getPendingExecutions().length})
+          </button>
+          <button
+            onClick={() => setSelectedTab('history')}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: selectedTab === 'history' ? '#2d3548' : 'transparent',
+              border: 'none',
+              borderBottom: selectedTab === 'history' ? '2px solid #007bff' : 'none',
+              color: '#fff',
+              cursor: 'pointer'
+            }}
+          >
+            History ({terminalData.executionHistory.length})
+          </button>
+          <button
+            onClick={() => setSelectedTab('test')}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: selectedTab === 'test' ? '#2d3548' : 'transparent',
+              border: 'none',
+              borderBottom: selectedTab === 'test' ? '2px solid #007bff' : 'none',
+              color: '#fff',
+              cursor: 'pointer'
+            }}
+          >
+            Test
+          </button>
+        </div>
+
+        {/* Commands Tab */}
+        {selectedTab === 'commands' && (
+          <div>
+            <div style={{ marginBottom: '20px' }}>
+              <button onClick={handleAddCommand} className="primary-btn">
+                Add New Command
+              </button>
+            </div>
+
+            {/* Command Form */}
+            {showCommandForm && (
+              <div style={{
+                border: '1px solid #444',
+                padding: '20px',
+                marginBottom: '20px',
+                backgroundColor: '#1a1a1a',
+                borderRadius: '4px'
+              }}>
+                <h3>{editingCommandId ? 'Edit Command' : 'New Command'}</h3>
+
+                <div className="form-group">
+                  <label>Command Name *</label>
+                  <input
+                    type="text"
+                    value={commandForm.name}
+                    onChange={(e) => setCommandForm({ ...commandForm, name: e.target.value })}
+                    placeholder="e.g., engine, scan, status"
+                    style={{ width: '100%' }}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Description</label>
+                  <textarea
+                    value={commandForm.description}
+                    onChange={(e) => setCommandForm({ ...commandForm, description: e.target.value })}
+                    placeholder="What does this command do?"
+                    rows={2}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={commandForm.requiresManualReview}
+                      onChange={(e) => setCommandForm({ ...commandForm, requiresManualReview: e.target.checked })}
+                      style={{ marginRight: '8px' }}
+                    />
+                    Requires Manual Review (command goes to queue for GM approval)
+                  </label>
+                </div>
+
+                <div className="form-group">
+                  <label>Response Template</label>
+                  <textarea
+                    value={commandForm.responseTemplate}
+                    onChange={(e) => setCommandForm({ ...commandForm, responseTemplate: e.target.value })}
+                    placeholder="Response text. Use {{parameterName}} for dynamic values."
+                    rows={4}
+                    style={{ width: '100%' }}
+                  />
+                  <p style={{ fontSize: '0.85em', color: '#888', marginTop: '5px' }}>
+                    Use placeholders like {`{{power}}`} or {`{{mode}}`} to insert parameter values
+                  </p>
+                </div>
+
+                {/* Parameters Section */}
+                <div style={{ marginTop: '20px' }}>
+                  <h4 style={{ marginBottom: '10px' }}>
+                    Parameters ({commandForm.parameters?.length || 0})
+                    <button
+                      onClick={() => setShowParameterForm(!showParameterForm)}
+                      style={{ marginLeft: '10px', padding: '4px 12px', fontSize: '0.9em' }}
+                    >
+                      {showParameterForm ? 'Cancel' : 'Add Parameter'}
+                    </button>
+                  </h4>
+
+                  {showParameterForm && (
+                    <div style={{
+                      border: '1px solid #555',
+                      padding: '15px',
+                      marginBottom: '15px',
+                      backgroundColor: '#0f0f0f',
+                      borderRadius: '4px'
+                    }}>
+                      <div className="form-group">
+                        <label>Parameter Name *</label>
+                        <input
+                          type="text"
+                          value={parameterForm.name}
+                          onChange={(e) => setParameterForm({ ...parameterForm, name: e.target.value })}
+                          placeholder="e.g., power, mode, target"
+                          style={{ width: '100%' }}
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Type</label>
+                        <select
+                          value={parameterForm.type}
+                          onChange={(e) => setParameterForm({ ...parameterForm, type: e.target.value as any })}
+                          style={{ width: '100%' }}
+                        >
+                          <option value="string">String</option>
+                          <option value="number">Number</option>
+                          <option value="boolean">Boolean</option>
+                        </select>
+                      </div>
+
+                      <div className="form-group">
+                        <label>Description</label>
+                        <input
+                          type="text"
+                          value={parameterForm.description}
+                          onChange={(e) => setParameterForm({ ...parameterForm, description: e.target.value })}
+                          placeholder="What does this parameter do?"
+                          style={{ width: '100%' }}
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={parameterForm.required}
+                            onChange={(e) => setParameterForm({ ...parameterForm, required: e.target.checked })}
+                            style={{ marginRight: '8px' }}
+                          />
+                          Required
+                        </label>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button onClick={handleAddParameter} className="primary-btn">
+                          {editingParameterIndex !== null ? 'Update Parameter' : 'Add Parameter'}
+                        </button>
+                        <button onClick={resetParameterForm} style={{ backgroundColor: '#6c757d' }}>
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {commandForm.parameters && commandForm.parameters.length > 0 && (
+                    <table className="parameters-table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Type</th>
+                          <th>Required</th>
+                          <th>Description</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {commandForm.parameters.map((param, index) => (
+                          <tr key={index}>
+                            <td><code>{param.name}</code></td>
+                            <td>{param.type}</td>
+                            <td>{param.required ? 'Yes' : 'No'}</td>
+                            <td>{param.description}</td>
+                            <td>
+                              <button
+                                onClick={() => handleEditParameter(index)}
+                                style={{ padding: '4px 8px', fontSize: '0.85em', marginRight: '5px' }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteParameter(index)}
+                                className="delete-btn-table"
+                                style={{ padding: '4px 8px', fontSize: '0.85em' }}
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                  <button onClick={handleSaveCommand} className="primary-btn">
+                    {editingCommandId ? 'Update Command' : 'Save Command'}
+                  </button>
+                  <button onClick={resetCommandForm} style={{ backgroundColor: '#6c757d' }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Commands List */}
+            {terminalData.commands.length === 0 ? (
+              <p className="empty-message">No commands defined yet.</p>
+            ) : (
+              <table className="parameters-table">
+                <thead>
+                  <tr>
+                    <th>Command</th>
+                    <th>Description</th>
+                    <th>Parameters</th>
+                    <th>Manual Review</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {terminalData.commands.map((command) => (
+                    <tr key={command.id}>
+                      <td><code>{command.name}</code></td>
+                      <td>{command.description}</td>
+                      <td>{command.parameters.length}</td>
+                      <td>{command.requiresManualReview ? '✓ Yes' : 'No'}</td>
+                      <td>
+                        <button
+                          onClick={() => handleEditCommand(command)}
+                          style={{ padding: '4px 8px', fontSize: '0.85em', marginRight: '5px' }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCommand(command.id)}
+                          className="delete-btn-table"
+                          style={{ padding: '4px 8px', fontSize: '0.85em' }}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+
+        {/* Review Queue Tab */}
+        {selectedTab === 'queue' && (
+          <div>
+            <h3 style={{ marginBottom: '15px' }}>Pending Command Executions</h3>
+            {getPendingExecutions().length === 0 ? (
+              <p className="empty-message">No commands waiting for review.</p>
+            ) : (
+              getPendingExecutions().map((execution) => (
+                <QueueItem
+                  key={execution.id}
+                  execution={execution}
+                  command={terminalData.commands.find(c => c.id === execution.commandId)}
+                  onApprove={handleApproveExecution}
+                  onReject={handleRejectExecution}
+                  formatTimestamp={formatTimestamp}
+                />
+              ))
+            )}
+          </div>
+        )}
+
+        {/* History Tab */}
+        {selectedTab === 'history' && (
+          <div>
+            <h3 style={{ marginBottom: '15px' }}>Command Execution History</h3>
+            {terminalData.executionHistory.length === 0 ? (
+              <p className="empty-message">No command executions yet.</p>
+            ) : (
+              <table className="parameters-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>User</th>
+                    <th>Command</th>
+                    <th>Parameters</th>
+                    <th>Status</th>
+                    <th>Response</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...terminalData.executionHistory].reverse().map((execution) => (
+                    <tr key={execution.id}>
+                      <td style={{ fontFamily: 'monospace', fontSize: '0.9em' }}>
+                        {formatTimestamp(execution.timestamp)}
+                      </td>
+                      <td>{execution.username}</td>
+                      <td><code>{execution.parsedCommand}</code></td>
+                      <td style={{ fontSize: '0.85em' }}>
+                        {Object.entries(execution.parsedParameters).map(([key, val]) => (
+                          <div key={key}><code>{key}={String(val)}</code></div>
+                        ))}
+                      </td>
+                      <td>
+                        <span style={{
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontSize: '0.85em',
+                          backgroundColor:
+                            execution.status === 'approved' ? '#28a745' :
+                            execution.status === 'rejected' ? '#dc3545' :
+                            execution.status === 'auto-responded' ? '#17a2b8' :
+                            '#ffc107',
+                          color: '#fff'
+                        }}>
+                          {execution.status}
+                        </span>
+                      </td>
+                      <td style={{ maxWidth: '300px', wordWrap: 'break-word' }}>
+                        {execution.response || '(no response)'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+
+        {/* Test Tab */}
+        {selectedTab === 'test' && (
+          <div>
+            <h3 style={{ marginBottom: '15px' }}>Test Commands</h3>
+            <p style={{ color: '#888', marginBottom: '20px' }}>
+              Enter a command to test the parser and see the response. Format: <code>command -param1 value1 -param2 value2</code>
+            </p>
+
+            {terminalData.commands.length === 0 ? (
+              <div className="error-box">
+                <p>No commands defined yet. Go to the Commands tab to add commands first.</p>
+              </div>
+            ) : (
+              <>
+                <div style={{ marginBottom: '20px' }}>
+                  <div className="form-group">
+                    <label>Available Commands:</label>
+                    <div style={{ 
+                      padding: '10px', 
+                      backgroundColor: '#0f0f0f', 
+                      borderRadius: '4px',
+                      marginBottom: '10px'
+                    }}>
+                      {terminalData.commands.map((cmd) => (
+                        <div key={cmd.id} style={{ marginBottom: '10px' }}>
+                          <div>
+                            <code style={{ color: '#17a2b8', fontSize: '1.1em' }}>{cmd.name}</code>
+                            {cmd.requiresManualReview && (
+                              <span style={{ 
+                                marginLeft: '10px', 
+                                fontSize: '0.8em', 
+                                color: '#ffc107' 
+                              }}>
+                                [Manual Review]
+                              </span>
+                            )}
+                          </div>
+                          {cmd.description && (
+                            <div style={{ color: '#888', fontSize: '0.9em', marginLeft: '10px' }}>
+                              {cmd.description}
+                            </div>
+                          )}
+                          {cmd.parameters.length > 0 && (
+                            <div style={{ marginLeft: '10px', fontSize: '0.85em', marginTop: '5px' }}>
+                              Parameters:
+                              {cmd.parameters.map((param) => (
+                                <div key={param.name} style={{ marginLeft: '10px', color: '#aaa' }}>
+                                  <code>-{param.name}</code> ({param.type})
+                                  {param.required && <span style={{ color: '#dc3545' }}> *required</span>}
+                                  {param.description && ` - ${param.description}`}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Test Command Input:</label>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <input
+                        type="text"
+                        value={testInput}
+                        onChange={(e) => setTestInput(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            handleTestCommand();
+                          }
+                        }}
+                        placeholder="e.g., engine -power 50 -mode emergency"
+                        style={{ flex: 1, padding: '10px', fontSize: '1em', fontFamily: 'monospace' }}
+                      />
+                      <button
+                        onClick={handleTestCommand}
+                        disabled={isTesting}
+                        className="primary-btn"
+                        style={{ padding: '10px 20px' }}
+                      >
+                        {isTesting ? 'Testing...' : 'Test Command'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {testError && (
+                    <div className="error-box" style={{ marginTop: '15px' }}>
+                      <p>{testError}</p>
+                    </div>
+                  )}
+
+                  {testResponse && (
+                    <div style={{ 
+                      marginTop: '15px',
+                      padding: '15px',
+                      backgroundColor: '#0f0f0f',
+                      border: '1px solid #28a745',
+                      borderRadius: '4px'
+                    }}>
+                      <h4 style={{ marginTop: 0, color: '#28a745' }}>Test Result:</h4>
+                      <pre style={{ 
+                        whiteSpace: 'pre-wrap', 
+                        margin: 0,
+                        fontFamily: 'monospace',
+                        fontSize: '0.9em',
+                        color: '#ddd'
+                      }}>
+                        {testResponse}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Queue Item Component
+function QueueItem({
+  execution,
+  command,
+  onApprove,
+  onReject,
+  formatTimestamp
+}: {
+  execution: TerminalCommandExecution;
+  command?: TerminalCommand;
+  onApprove: (id: string, response: string) => void;
+  onReject: (id: string, response: string) => void;
+  formatTimestamp: (timestamp: string) => string;
+}) {
+  const [response, setResponse] = useState(command?.responseTemplate || '');
+
+  // Replace placeholders in response template
+  const getPreviewResponse = () => {
+    let preview = response;
+    Object.entries(execution.parsedParameters).forEach(([key, value]) => {
+      preview = preview.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
+    });
+    return preview;
+  };
+
+  return (
+    <div style={{
+      border: '1px solid #444',
+      padding: '15px',
+      marginBottom: '15px',
+      backgroundColor: '#1a1a1a',
+      borderRadius: '4px'
+    }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '15px' }}>
+        <div>
+          <strong>User:</strong> {execution.username}
+        </div>
+        <div>
+          <strong>Time:</strong> {formatTimestamp(execution.timestamp)}
+        </div>
+        <div>
+          <strong>Input:</strong> <code>{execution.input}</code>
+        </div>
+        <div>
+          <strong>Command:</strong> <code>{execution.parsedCommand}</code>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <strong>Parameters:</strong>
+        <div style={{ marginTop: '5px' }}>
+          {Object.entries(execution.parsedParameters).map(([key, value]) => (
+            <div key={key} style={{ marginLeft: '10px' }}>
+              <code>{key} = {String(value)}</code>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label>Response</label>
+        <textarea
+          value={response}
+          onChange={(e) => setResponse(e.target.value)}
+          rows={4}
+          style={{ width: '100%' }}
+          placeholder="Enter response to send to the user..."
+        />
+        {response && (
+          <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#0f0f0f', borderRadius: '4px' }}>
+            <strong>Preview:</strong>
+            <div style={{ marginTop: '5px', color: '#aaa' }}>{getPreviewResponse()}</div>
+          </div>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <button
+          onClick={() => onApprove(execution.id, getPreviewResponse())}
+          style={{ backgroundColor: '#28a745', padding: '8px 16px' }}
+        >
+          Approve & Send Response
+        </button>
+        <button
+          onClick={() => onReject(execution.id, getPreviewResponse() || '')}
+          style={{ backgroundColor: '#dc3545', padding: '8px 16px' }}
+        >
+          Reject
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default TerminalApp;

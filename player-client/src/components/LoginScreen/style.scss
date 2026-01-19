@@ -1,0 +1,56 @@
+@use "../../assets/sass/colors" as *;
+@use "../../assets/sass/fonts" as *;
+
+.login-screen {
+    font-family: $font-family;
+    font-size: terminal-font();
+    line-height: terminal-line();
+    color: $foreground;
+    text-shadow: $foreground-glow;
+    padding: 0;
+    white-space: pre-wrap;
+
+    .login-header {
+        margin-bottom: terminal-line();
+        white-space: pre;
+    }
+
+    .login-static-line {
+        margin-bottom: terminal-line(0.5);
+    }
+
+    .login-prompt-line {
+        display: flex;
+        align-items: center;
+        
+        > span {
+            margin-right: 0;
+        }
+
+        .__prompt__ {
+            flex: 1;
+        }
+    }
+
+    .login-error {
+        .error-message {
+            color: $alert;
+            text-shadow: $alert-glow;
+            margin: terminal-line() 0;
+            font-weight: bold;
+        }
+
+        .error-retry {
+            color: foreground-alpha(0.7);
+            margin-top: terminal-line();
+        }
+    }
+
+    .login-system-message {
+        color: $alert;
+        text-shadow: $alert-glow;
+        text-transform: uppercase;
+        margin-bottom: terminal-line();
+        white-space: pre-wrap;
+    }
+}

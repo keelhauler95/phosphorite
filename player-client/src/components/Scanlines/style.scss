@@ -1,0 +1,84 @@
+@use "../../assets/sass/colors" as *;
+
+.__scanlines__ {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    z-index: 2147483648;
+    isolation: isolate;
+}
+
+.__static__ {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    z-index: 2147483647;
+    isolation: isolate;
+    background-image: 
+        repeating-linear-gradient(
+            0deg,
+            foreground-alpha(0.03),
+            foreground-alpha(0.03) 1px,
+            transparent 1px,
+            transparent 2px
+        );
+    animation: scanline 6s linear infinite;
+}
+
+/* SCANLINE SETTINGS */
+$scan-width: 1px;
+$scan-color: $scanlines-foreground;
+$scan-background: $scanlines-background;
+
+/* SCANLINES */
+.__scanlines__ {
+    overflow: hidden;
+
+    &:before,
+    &:after {
+        display: block;
+        pointer-events: none;
+        content: '';
+        position: absolute;
+    }
+
+    /* Moving scanline */
+    &:before {
+        width: 100%;
+        height: $scan-width * 1;
+        z-index: 2147483649;
+        background: $foreground;
+        opacity: 0.2;
+        animation: scanline 6s linear infinite;
+    }
+
+    /* Static scanlines */
+    &:after {
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: linear-gradient(
+            to bottom,
+            $scan-background 50%,
+            $scan-color 51%
+        );
+        background-size: 100% $scan-width*2;
+    }
+}
+
+/* ANIMATE MOVING SCANLINE */
+@keyframes scanline {
+    0% {
+        transform: translateY(-100vh);
+    }
+    100% {
+        transform: translateY(100vh);
+    }
+}

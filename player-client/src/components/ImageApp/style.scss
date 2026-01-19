@@ -1,0 +1,156 @@
+@use "../../assets/sass/colors" as *;
+@use "../../assets/sass/fonts" as *;
+
+.image-app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+
+    canvas {
+        max-width: 100%;
+        max-height: 100%;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        display: block;
+        margin: 0 auto;
+        filter: var(--player-image-filter, grayscale(100%) sepia(100%) hue-rotate(135deg) saturate(1.2) brightness(0.82) contrast(1.05));
+    }
+
+    &.fit-height {
+        canvas {
+            width: auto;
+            height: 100%;
+        }
+    }
+
+    &.fit-width {
+        canvas {
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    .progressbar {
+        margin-bottom: terminal-line();
+        
+        &::after {
+            content: "";
+            animation: loadingdots 1.5s ease-in infinite;
+        }
+    }
+
+    // Terminal filter modes - can be overridden by className
+    &.monochrome {
+        canvas {
+            mix-blend-mode: luminosity;
+        }
+    }
+
+    &.luminosity {
+        canvas {
+            mix-blend-mode: luminosity;
+        }
+    }
+
+    &.lighten {
+        canvas {
+            mix-blend-mode: lighten;
+        }
+    }
+
+    &.multiply {
+        canvas {
+            mix-blend-mode: multiply;
+        }
+    }
+
+    &.screen {
+        canvas {
+            mix-blend-mode: screen;
+        }
+    }
+
+    &.overlay {
+        canvas {
+            mix-blend-mode: overlay;
+        }
+    }
+
+    &.darken {
+        canvas {
+            mix-blend-mode: darken;
+        }
+    }
+
+    &.color-dodge {
+        canvas {
+            mix-blend-mode: color-dodge;
+        }
+    }
+
+    &.color-burn {
+        canvas {
+            mix-blend-mode: color-burn;
+        }
+    }
+
+    &.hard-light {
+        canvas {
+            mix-blend-mode: hard-light;
+        }
+    }
+
+    &.soft-light {
+        canvas {
+            mix-blend-mode: soft-light;
+        }
+    }
+
+    &.difference {
+        canvas {
+            mix-blend-mode: difference;
+        }
+    }
+
+    &.exclusion {
+        canvas {
+            mix-blend-mode: exclusion;
+        }
+    }
+
+    &.hue {
+        canvas {
+            mix-blend-mode: hue;
+        }
+    }
+
+    &.saturation {
+        canvas {
+            mix-blend-mode: saturation;
+        }
+    }
+
+    &.color {
+        canvas {
+            mix-blend-mode: color;
+        }
+    }
+}
+
+@keyframes loadingdots {
+    0%, 20% {
+        content: "";
+    }
+    40% {
+        content: ".";
+    }
+    60% {
+        content: "..";
+    }
+    80%, 100% {
+        content: "...";
+    }
+}

@@ -1,0 +1,75 @@
+@use "../../assets/sass/colors" as *;
+@use "../../assets/sass/fonts" as *;
+
+.compose-message {
+  padding: terminal-line();
+  font-family: $font-family;
+  font-size: terminal-font();
+  line-height: terminal-line();
+  color: $foreground;
+  text-shadow: $foreground-glow;
+
+  .teletype {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    
+    pre {
+      margin: 0;
+      padding: 0;
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      display: inline;
+      white-space: pre;
+    }
+
+    .cursor {
+      display: inline;
+    }
+  }
+}
+
+.compose-static-line {
+  margin: 0;
+  padding: 0;
+  margin-bottom: terminal-line(0.5);
+  font-family: $font-family;
+  font-size: terminal-font();
+  line-height: terminal-line();
+}
+
+.compose-prompt-line {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  
+  span {
+    white-space: nowrap;
+    margin-right: 0;
+    display: inline;
+  }
+
+  .__prompt__ {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    
+    .prompt {
+      display: none; // Hide the prompt since we're using the span
+    }
+
+    .input {
+      display: inline;
+      margin: 0;
+      padding: 0;
+    }
+
+    .cursor {
+      display: inline;
+      margin: 0;
+      padding: 0;
+    }
+  }
+}

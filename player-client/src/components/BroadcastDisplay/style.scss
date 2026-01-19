@@ -1,0 +1,112 @@
+@use "../../assets/sass/colors" as *;
+@use "../../assets/sass/fonts" as *;
+
+.broadcast-display {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $background;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  // Old TV power-on animation (reverse of shutdown)
+  animation: tvPowerOn 0.5s ease-out;
+
+  // Old TV shutdown animation
+  &.exiting {
+    animation: tvShutdown 0.5s ease-in forwards;
+  }
+
+  &.text-broadcast {
+    padding: terminal-line();
+    align-items: flex-start;
+    
+    .broadcast-text-content {
+      width: 100%;
+      max-width: 100%;
+      color: $foreground;
+      font-family: $font-family;
+      font-size: terminal-font();
+      line-height: terminal-line();
+      text-shadow: $foreground-glow;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      
+      // Ensure Teletype component wraps properly inside broadcast
+      .teletype {
+        display: block;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        
+        pre {
+          display: block;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  &.image-broadcast {
+    .broadcast-image-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 90vw;
+      max-height: 90vh;
+      
+      .broadcast-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        // Controlled via theme media settings; fall back to default broadcast filter
+        filter: var(--player-image-filter, grayscale(100%) sepia(100%) hue-rotate(135deg) saturate(1.2) brightness(0.82) contrast(1.05));
+      }
+    }
+  }
+}
+
+@keyframes tvPowerOn {
+  0% {
+    transform: scale(0, 0);
+    filter: brightness(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1, 0.01);
+    filter: brightness(2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1, 1);
+    filter: brightness(1);
+    opacity: 1;
+  }
+}
+
+@keyframes tvShutdown {
+  0% {
+    transform: scale(1, 1);
+    filter: brightness(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1, 0.01);
+    filter: brightness(2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0, 0);
+    filter: brightness(0);
+    opacity: 0;
+  }
+}

@@ -1,0 +1,36 @@
+@use "../../assets/sass/colors" as *;
+@use "../../assets/sass/fonts" as *;
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  color: $foreground;
+  font-size: terminal-font();
+  line-height: terminal-line();
+
+  .game-header-left,
+  .game-header-right {
+    white-space: nowrap;
+  }
+}
+
+.game-header-separator {
+  padding: 0;
+  margin: 0 0 terminal-line() 0; // avoid side shifts
+  width: 100%;
+  height: terminal-line(2);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  
+  &::after {
+    content: '========================================================================================================================================================================================================================================';
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    line-height: terminal-line();
+    color: $foreground;
+  }
+}

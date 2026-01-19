@@ -1,0 +1,207 @@
+@use "../../assets/sass/colors" as *;
+@use "../../assets/sass/fonts" as *;
+
+.telemetry-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  white-space: pre-wrap;
+  font-family: $font-family;
+  font-size: terminal-font();
+  color: $foreground;
+
+  .groups-list-view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .groups-list-header {
+      margin-bottom: terminal-line();
+
+      .back-link {
+        color: $foreground;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        display: inline-block;
+
+        &:hover {
+          color: $foreground-light;
+          text-shadow: 0 0 8px foreground-alpha(0.8);
+          transform: translateX(4px);
+        }
+
+        &:active {
+          color: $foreground-dark;
+        }
+      }
+    }
+
+    .groups-list-separator {
+      margin-bottom: terminal-line();
+      width: 100%;
+      height: terminal-line(2);
+      position: relative;
+      overflow: hidden;
+      
+      &::after {
+        content: '========================================================================================================================================================================================================================================';
+        display: block;
+        overflow: hidden;
+        white-space: nowrap;
+        width: 100%;
+        line-height: terminal-line();
+      }
+    }
+
+    .groups-list {
+      display: flex;
+      flex-direction: column;
+
+      .monitoring-group-button {
+        display: flex;
+        align-items: baseline;
+        gap: terminal-line(0.25);
+        margin-bottom: terminal-line(0.35);
+        cursor: pointer;
+        padding: 0;
+        transition: all 0.15s ease;
+        color: $foreground;
+        text-decoration: none;
+
+        .teletype {
+          display: inline-block;
+
+          pre {
+            display: inline;
+          }
+        }
+
+        &:hover {
+          color: $foreground-light;
+          text-shadow: 0 0 8px foreground-alpha(0.8);
+          transform: translateX(4px);
+        }
+
+        &:active {
+          color: $foreground-dark;
+        }
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    .no-groups-message {
+      color: $foreground;
+      opacity: 0.7;
+      margin-top: terminal-line();
+    }
+  }
+
+  .group-details-view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .group-header {
+      margin-bottom: terminal-line(2);
+
+      .back-link {
+        color: $foreground;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        display: inline-block;
+
+        &:hover {
+          color: $foreground-light;
+          text-shadow: 0 0 8px foreground-alpha(0.8);
+          transform: translateX(4px);
+        }
+
+        &:active {
+          color: $foreground-dark;
+        }
+      }
+    }
+
+    .group-separator {
+      margin-bottom: terminal-line();
+      width: 100%;
+      height: terminal-line(2);
+      position: relative;
+      overflow: hidden;
+      
+      &::after {
+        content: '========================================================================================================================================================================================================================================';
+        display: block;
+        overflow: hidden;
+        white-space: nowrap;
+        width: 100%;
+        line-height: terminal-line();
+      }
+    }
+
+    .parameters-list {
+      display: flex;
+      flex-direction: column;
+      gap: terminal-line();
+
+      .parameter-row {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        white-space: nowrap;
+        gap: 1ch;
+        color: $foreground;
+        transition: color 0.2s ease;
+
+        &.status-warning {
+          color: rgb(200, 140, 60); // Warm amber/orange for warning
+        }
+
+        &.status-critical {
+          color: rgb(255, 100, 40); // Brighter orange-red for critical
+        }
+
+        &.status-error {
+          color: rgb(255, 100, 40); // Same as critical for textual mismatches
+        }
+
+        .param-name {
+          flex: 1 1 auto;
+          min-width: 18ch;
+          max-width: 32ch;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .param-value {
+          flex: 0 0 auto;
+          text-align: right;
+          min-width: 10ch;
+          white-space: nowrap;
+        }
+
+        .param-unit {
+          flex: 0 0 auto;
+          text-align: left;
+          min-width: 6ch;
+          white-space: nowrap;
+        }
+
+        .progress-bar-inline {
+          flex: 0 0 auto;
+          margin-left: auto;
+
+          .progress-bar {
+            letter-spacing: 0;
+          }
+        }
+      }
+    }
+  }
+}
+

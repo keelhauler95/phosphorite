@@ -1,0 +1,24 @@
+{
+  "name": "phosphorite",
+  "version": "0.1.0",
+  "description": "Complete rewrite of Phosphorite with proper architecture",
+  "private": true,
+  "scripts": {
+    "install-all": "cd backend && npm install && cd ../gm-client && npm install && cd ../player-client && npm install",
+    "postinstall": "npm run install-all || echo \"postinstall: subproject install failed; you can run 'npm run install-all' manually\"",
+    "dev": "npx concurrently \"npm run backend\" \"npm run gm-client\" \"npm run player-client\"",
+    "backend": "cd backend && npm run dev",
+    "gm-client": "cd gm-client && npm run dev",
+    "player-client": "cd player-client && npm run dev",
+    "build": "cd backend && npm run build && cd ../gm-client && npm run build && cd ../player-client && npm run build",
+    "start": "npx concurrently \"npm run start:backend\" \"npm run start:gm\" \"npm run start:player\"",
+    "start:backend": "cd backend && npm start",
+    "start:gm": "node scripts/run-preview.js gm-client",
+    "start:player": "node scripts/run-preview.js player-client"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "author": "",
+  "license": "ISC"
+}

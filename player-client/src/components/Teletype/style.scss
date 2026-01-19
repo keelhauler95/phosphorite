@@ -1,0 +1,40 @@
+@use "../../assets/sass/colors" as *;
+@use "../../assets/sass/fonts" as *;
+
+.teletype {
+    font-family: $font-family;
+    font-size: terminal-font();
+    line-height: terminal-line();
+    color: $foreground;
+    text-shadow: $foreground-glow;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    display: inline;
+    width: 100%;
+
+    pre {
+        margin: 0;
+        padding: 0;
+        font-family: inherit;
+        font-size: inherit;
+        line-height: inherit;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        display: inline;
+    }
+
+    .cursor {
+        animation: blink 1s infinite;
+        color: $foreground;
+        text-shadow: $foreground-glow;
+    }
+}
+
+@keyframes blink {
+    0%, 49% {
+        opacity: 1;
+    }
+    50%, 100% {
+        opacity: 0;
+    }
+}
