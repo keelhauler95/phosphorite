@@ -28,7 +28,7 @@ Phosphorite includes:
 
 While this is not my day job, a lot of time and effort went into building Phosphorite. If you find it useful for your games, consider buying me a coffee! Your support helps me dedicate more time to improving Phosphorite and creating more awesome open-source tools like this one.
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support-orange?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/keelhauler)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/keelhauler)
 
 ## Quick Start
 
