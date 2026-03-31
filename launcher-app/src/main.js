@@ -329,7 +329,6 @@ function spawnBackend(config) {
 }
 
 function spawnClientService(kind, config) {
-  const backendOrigin = getBackendUrl(config);
   const staticServerScript = runtimePath('scripts', 'serve-client.js');
   const isGm = kind === 'gm';
 
@@ -340,7 +339,7 @@ function spawnClientService(kind, config) {
       `--root-dir=${runtimePath(isGm ? 'gm-client' : 'player-client', 'dist')}`,
       `--host=${BIND_HOST}`,
       `--port=${isGm ? config.gmPort : config.playerPort}`,
-      `--backend-origin=${backendOrigin}`,
+      `--backend-port=${config.backendPort}`,
       `--title=${isGm ? 'Phosphorite GM' : 'Phosphorite Player'}`
     ]
   );

@@ -33,8 +33,17 @@ function normalizeBaseUrl(value) {
   return value.replace(/\/+$/, '');
 }
 
-function getRuntimeConfig() {
-  const backendOrigin = normalizeBaseUrl(getArg('backend-origin', 'http://127.0.0.1:3100'));
+function resolveBackendOrigin(clientHostname, backendPort, backendOriginOverride) {
+  if (backendOriginOverride) {
+    return normalizeBaseUrl(backendOriginOverride);
+  }
+
+  const safeHostname = !clientHostname || clientHostname === '0.0.0.0' ? '127.0.0.1' : clientHostname;
+  return `http://${safeHostname}:${backendPort}`;
+}
+
+function getRuntimeConfig(clientHostname, backendPort, backendOriginOverride) {
+  const backendOrigin = resolveBackendOrigin(clientHostname, backendPort, backendOriginOverride);
 
   return {
     apiBaseUrl: `${backendOrigin}/api`,
@@ -74,6 +83,8 @@ function main() {
   const host = getArg('host', '127.0.0.1');
   const port = Number(getArg('port', '0'));
   const title = getArg('title', 'Phosphorite Client');
+  const backendOriginOverride = getArg('backend-origin', '').trim();
+  const backendPort = Number(getArg('backend-port', '3100')) || 3100;
 
   if (!rootDir) {
     throw new Error('Missing --root-dir argument.');
@@ -88,8 +99,6 @@ function main() {
     throw new Error(`Client build not found at ${indexPath}`);
   }
 
-  const runtimeConfigBody = `window.__PHOS_RUNTIME_CONFIG__ = ${JSON.stringify(getRuntimeConfig())};`;
-
   const server = http.createServer((request, response) => {
     const requestUrl = new URL(request.url || '/', `http://${request.headers.host || '127.0.0.1'}`);
     const pathname = decodeURIComponent(requestUrl.pathname);
@@ -101,6 +110,9 @@ function main() {
     }
 
     if (pathname === '/phosphorite-runtime-config.js') {
+      const runtimeConfigBody = `window.__PHOS_RUNTIME_CONFIG__ = ${JSON.stringify(
+        getRuntimeConfig(requestUrl.hostname, backendPort, backendOriginOverride)
+      )};`;
       response.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
       response.end(runtimeConfigBody);
       return;
