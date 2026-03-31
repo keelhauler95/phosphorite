@@ -12,11 +12,11 @@
         <div>
           <p class="eyebrow">Portable session control</p>
           <h1>Phosphorite Launcher</h1>
-          <p class="lede">Configure ports, start the stack, open the GM and player views, and inspect logs without touching a terminal.</p>
+          <p class="lede">Configure ports, start and stop services individually or all at once, then share LAN links with your players.</p>
         </div>
         <div class="hero-actions">
-          <button id="startButton" class="button button-primary">Start</button>
-          <button id="stopButton" class="button">Stop</button>
+          <button id="startButton" class="button button-primary">Start All</button>
+          <button id="stopButton" class="button">Stop All</button>
         </div>
       </header>
 
@@ -64,7 +64,13 @@
                 <h3>Backend</h3>
                 <p id="backendUrl"></p>
               </div>
-              <span id="backendStatus" class="badge">Stopped</span>
+              <div class="service-actions">
+                <span id="backendStatus" class="badge">Stopped</span>
+                <div class="service-controls">
+                  <button id="startBackendButton" class="button button-small">Start</button>
+                  <button id="stopBackendButton" class="button button-small">Stop</button>
+                </div>
+              </div>
             </article>
             <article class="service" data-service="gm">
               <div>
@@ -73,7 +79,11 @@
               </div>
               <div class="service-actions">
                 <span id="gmStatus" class="badge">Stopped</span>
-                <button id="openGmButton" class="button button-small">Open</button>
+                <div class="service-controls">
+                  <button id="startGmButton" class="button button-small">Start</button>
+                  <button id="stopGmButton" class="button button-small">Stop</button>
+                  <button id="openGmButton" class="button button-small">Open</button>
+                </div>
               </div>
             </article>
             <article class="service" data-service="player">
@@ -83,9 +93,19 @@
               </div>
               <div class="service-actions">
                 <span id="playerStatus" class="badge">Stopped</span>
-                <button id="openPlayerButton" class="button button-small">Open</button>
+                <div class="service-controls">
+                  <button id="startPlayerButton" class="button button-small">Start</button>
+                  <button id="stopPlayerButton" class="button button-small">Stop</button>
+                  <button id="openPlayerButton" class="button button-small">Open</button>
+                </div>
               </div>
             </article>
+          </div>
+
+          <div class="lan-share">
+            <h3>Share these LAN links with players</h3>
+            <p class="lan-note">These addresses work for devices on your local network. Start GM and Player services first.</p>
+            <div id="lanShareList" class="lan-share-list"></div>
           </div>
         </section>
 

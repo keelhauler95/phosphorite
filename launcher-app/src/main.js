@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const fs = require('fs');
 const http = require('http');
+const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
 
@@ -14,6 +15,7 @@ const LOCAL_HOST = '127.0.0.1';
 const BIND_HOST = '0.0.0.0';
 const LOG_LIMIT = 500;
 const smokeTestMode = process.argv.includes('--smoke-test');
+const SERVICE_KEYS = ['backend', 'gm', 'player'];
 
 let mainWindow = null;
 let processRegistry = {
@@ -224,6 +226,37 @@ function getClientUrl(kind, config) {
   return `http://${LOCAL_HOST}:${port}`;
 }
 
+function getLanIPs() {
+  const interfaces = os.networkInterfaces();
+  const ips = new Set();
+
+  for (const records of Object.values(interfaces)) {
+    if (!Array.isArray(records)) {
+      continue;
+    }
+
+    for (const record of records) {
+      if (!record || record.internal) {
+        continue;
+      }
+
+      if (record.family === 'IPv4') {
+        ips.add(record.address);
+      }
+    }
+  }
+
+  return [...ips].sort();
+}
+
+function getLanShareUrls(config) {
+  return getLanIPs().map(ip => ({
+    ip,
+    gmUrl: `http://${ip}:${config.gmPort}`,
+    playerUrl: `http://${ip}:${config.playerPort}`
+  }));
+}
+
 function checkUrl(url) {
   return new Promise(resolve => {
     const request = http.get(url, { timeout: 1000 }, response => {
@@ -266,6 +299,7 @@ async function getState() {
   return {
     config,
     services,
+    lanShares: getLanShareUrls(config),
     runtimeRoot: getRuntimeRoot(),
     writableRoot: getWritableRoot(),
     dataDir: getDataDir(),
@@ -275,20 +309,7 @@ async function getState() {
   };
 }
 
-async function startStack() {
-  const config = readConfig();
-
-  if (!arePortsUnique(config)) {
-    throw new Error('Backend, GM, and player ports must all be different.');
-  }
-
-  if (isProcessRunning(processRegistry.backend) || isProcessRunning(processRegistry.gm) || isProcessRunning(processRegistry.player)) {
-    return getState();
-  }
-
-  assertRuntimeReady();
-  resetLogFile();
-
+function spawnBackend(config) {
   const backendEnv = {
     NODE_ENV: 'production',
     PHOS_BACKEND_PORT: String(config.backendPort),
@@ -305,50 +326,87 @@ async function startStack() {
       env: backendEnv
     }
   );
+}
 
+function spawnClientService(kind, config) {
   const backendOrigin = getBackendUrl(config);
   const staticServerScript = runtimePath('scripts', 'serve-client.js');
+  const isGm = kind === 'gm';
 
-  processRegistry.gm = spawnNodeProcess(
-    'gm',
+  processRegistry[kind] = spawnNodeProcess(
+    kind,
     staticServerScript,
     [
-      `--root-dir=${runtimePath('gm-client', 'dist')}`,
+      `--root-dir=${runtimePath(isGm ? 'gm-client' : 'player-client', 'dist')}`,
       `--host=${BIND_HOST}`,
-      `--port=${config.gmPort}`,
+      `--port=${isGm ? config.gmPort : config.playerPort}`,
       `--backend-origin=${backendOrigin}`,
-      '--title=Phosphorite GM'
+      `--title=${isGm ? 'Phosphorite GM' : 'Phosphorite Player'}`
     ]
   );
+}
 
-  processRegistry.player = spawnNodeProcess(
-    'player',
-    staticServerScript,
-    [
-      `--root-dir=${runtimePath('player-client', 'dist')}`,
-      `--host=${BIND_HOST}`,
-      `--port=${config.playerPort}`,
-      `--backend-origin=${backendOrigin}`,
-      '--title=Phosphorite Player'
-    ]
-  );
+async function startService(serviceName, options = {}) {
+  const config = readConfig();
 
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  if (!SERVICE_KEYS.includes(serviceName)) {
+    throw new Error(`Unknown service: ${serviceName}`);
+  }
+
+  if (!arePortsUnique(config)) {
+    throw new Error('Backend, GM, and player ports must all be different.');
+  }
+
+  assertRuntimeReady();
+
+  if (options.resetLog) {
+    resetLogFile();
+  }
+
+  if (isProcessRunning(processRegistry[serviceName])) {
+    return;
+  }
+
+  if (serviceName === 'backend') {
+    spawnBackend(config);
+  } else {
+    spawnClientService(serviceName, config);
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 500));
+}
+
+async function stopService(serviceName) {
+  if (!SERVICE_KEYS.includes(serviceName)) {
+    throw new Error(`Unknown service: ${serviceName}`);
+  }
+
+  killChildProcess(processRegistry[serviceName]);
+  processRegistry[serviceName] = null;
+  await new Promise(resolve => setTimeout(resolve, 350));
+}
+
+async function startStack() {
+  const stackAlreadyRunning = SERVICE_KEYS.some(key => isProcessRunning(processRegistry[key]));
+
+  if (!stackAlreadyRunning) {
+    resetLogFile();
+  }
+
+  await startService('backend');
+  await startService('gm');
+  await startService('player');
+
+  await new Promise(resolve => setTimeout(resolve, 900));
   return getState();
 }
 
 async function stopStack() {
-  killChildProcess(processRegistry.player);
-  killChildProcess(processRegistry.gm);
-  killChildProcess(processRegistry.backend);
+  await stopService('player');
+  await stopService('gm');
+  await stopService('backend');
 
-  processRegistry = {
-    backend: null,
-    gm: null,
-    player: null
-  };
-
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise(resolve => setTimeout(resolve, 500));
   return getState();
 }
 
@@ -403,6 +461,14 @@ ipcMain.handle('launcher:save-config', async (_event, config) => {
 });
 ipcMain.handle('launcher:start', async () => startStack());
 ipcMain.handle('launcher:stop', async () => stopStack());
+ipcMain.handle('launcher:start-service', async (_event, service) => {
+  await startService(service);
+  return getState();
+});
+ipcMain.handle('launcher:stop-service', async (_event, service) => {
+  await stopService(service);
+  return getState();
+});
 ipcMain.handle('launcher:open', async (_event, target) => {
   const config = readConfig();
 

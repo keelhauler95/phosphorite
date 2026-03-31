@@ -30,51 +30,16 @@ While this is not my day job, a lot of time and effort went into building Phosph
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B41SLBNR)
 
-## Quick Start
+## Quick Launch
 
-If you know how to use Node and npm: clone the repo, then `npm install` > `npm run build` > `npm run start`.
+1. Download the latest archive from **GitHub Releases**.
+2. Extract it anywhere on your machine.
+3. Start the single GUI launcher entry point for your OS:
+   - **Windows**: `Phosphorite Launcher.exe`
+   - **macOS**: `Phosphorite Launcher.app`
+   - **Linux**: extracted launcher binary
 
-If you're not familiar with Git, terminals, or developer tools and just want to play, follow these simple steps to get Phosphorite running on your computer.
-
-1) Download the project
-
-    - Visit this repository's main page on GitHub and click the green **Code** button close to the top of the page, then choose **Download ZIP**.
-    - Save the ZIP to your computer and extract/unzip it to a folder (example: `Downloads/Phosphorite`).
-
-2) Open the exrtracted folder and double-click on the correct launcher for your operating system:
-
-    - **Windows**: `launcher.cmd` (or `launcher.ps1` for PowerShell)
-    - **macOS**: `launcher.command`
-    - **Linux**: `launcher.sh`
-  
-    If the launcher file does not run, make sure you set its permissions to executable.
-    If it runs but complains about not being able to install Node.js, please download it from [the official Node.js website](https://nodejs.org/en/download) and install it, then run the launcher again.
-
-If you are using a GitHub Release archive, you do not need to install Node.js: extract the archive and run the included launcher executable.
-
-## For End Users (Release Archive)
-
-Download the latest release archive from GitHub Releases, extract it anywhere, then launch the app:
-
-- Windows: `Phosphorite Launcher.exe`
-- macOS: `Phosphorite Launcher.app` (inside the zip)
-- Linux: run the extracted launcher binary
-
-Use the launcher UI to set ports, start/stop the stack, open GM/Player views, and inspect logs.
-
-## For Maintainers (Build and Publish Releases)
-
-Releases are built from the GitHub Actions workflow `.github/workflows/release-launcher.yml`.
-
-1. Create and push a version tag, for example `v0.2.0`.
-2. GitHub Actions builds launcher archives for Windows, macOS, and Linux.
-3. Artifacts are uploaded automatically to the GitHub Release tied to that tag.
-
-To build locally before tagging:
-
-```bash
-npm run dist
-```
+From the launcher UI you can set ports, start/stop each service, start/stop all services, and copy the LAN addresses for players.
     
 
 ## Features
@@ -230,60 +195,6 @@ Phosphorite is composed by three services that talk to each other in real-time:
 
 Each package is independent; the root `package.json` only coordinates installs and scripts.
 
-## Requirements
-
-- Node.js 18+
-- npm 10+
-- Docker (optional, if you want to run it from a container)
-
-## Configuration
-
-Every service reads the same environment variables. Copy `.env.example` to `.env` (or `.env.local`) and tweak as needed:
-
-```bash
-# ports you want exposed on your machine
-PHOS_BACKEND_PORT=3100
-PHOS_GM_PORT=5173
-PHOS_PLAYER_PORT=5174
-
-# optional host bindings/origins
-PHOS_BACKEND_HOST=0.0.0.0
-PHOS_GM_HOST=0.0.0.0
-PHOS_PLAYER_HOST=0.0.0.0
-PHOS_BACKEND_ORIGIN=
-```
-
-The backend defaults to `3100`, GM dev server to `5173`, player dev server to `5174` when the variables are missing.
-
-## Launching the services
-
-Four launcher scripts are provided, use the correct one for your operating system:
-
-- **Windows PowerShell**: double-click `launcher.ps1` or run from PowerShell
-- **Windows CMD**: double-click `launcher.cmd` or run from Command Prompt
-- **macOS / Linux**: make `launcher.sh` executable once, then run:
-
-  ```bash
-  chmod +x launcher.sh
-  ./launcher.sh
-  ```
-
-- **macOS (Finder)**: make `launcher.command` executable once, then double-click:
-
-  ```bash
-  chmod +x launcher.command
-  # Then double-click launcher.command
-  ```
-
-The launcher opens a shell from which you can:
-
-1. **Install and build**: installs the requirements to run all services, then builds
-2. **Configure ports**: customize backend/GM/player ports
-3. **Start the game**: starts the three services
-
-The launcher tracks running processes so you can stop or relaunch the stack cleanly.
-All launchers use the same Node.js logic from `scripts/bootstrap.js`.
-
 ### Running with Docker
 
 ```bash
@@ -292,27 +203,6 @@ docker compose up --build
 ```
 
 The compose file builds images and exposes the same configurable ports.
-
-## Local Development
-
-1. **Install dependencies:**
-
-   ```bash
-   npm install # installs backend/, gm-client/, player-client/
-   ```
-
-2. **Start the stack:**
-
-   ```bash
-   npm run dev
-   ```
-
-   This concurrently launches:
-   - Backend on `http://localhost:${PHOS_BACKEND_PORT}`
-   - GM dashboard on `http://localhost:${PHOS_GM_PORT}`
-   - Player terminal on `http://localhost:${PHOS_PLAYER_PORT}`
-
-To work on a single package you can still `cd` into it and run `npm run dev` / `npm run build` / `npm start` as usual.
 
 ## Troubleshooting
 
