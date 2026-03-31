@@ -1,9 +1,8 @@
 import { io, Socket } from 'socket.io-client';
 import { SocketEvent, SocketEventPayload } from '../types';
+import { getSocketUrl } from '../utils/runtimeConfig';
 
-// Use relative URL for production (nginx proxies /socket.io to backend)
-// In development, Vite's proxy handles this
-const SOCKET_URL = window.location.origin;
+const SOCKET_URL = getSocketUrl();
 
 class SocketService {
   private socket: Socket | null = null;

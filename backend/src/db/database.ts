@@ -1,12 +1,13 @@
 // @ts-ignore - sql.js doesn't have official types
 import initSqlJs from 'sql.js';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+import { getDataDir, getDatabasePath } from '../config/runtime';
 
 type SqlJsDatabase = any;
 
 let db: SqlJsDatabase | null = null;
-const dbPath = path.join(__dirname, '../../data/phosphorite.db');
+const dbPath = getDatabasePath();
 
 const defaultEffectSettings = {
   embers: {
@@ -82,7 +83,7 @@ export async function initDatabase() {
   const SQL = await initSqlJs();
 
   // Ensure data directory exists
-  const dataDir = path.dirname(dbPath);
+  const dataDir = getDataDir();
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
   }
