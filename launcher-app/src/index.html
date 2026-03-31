@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phosphorite Launcher</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Session control</p>
+          <h1>Phosphorite Launcher</h1>
+          <p class="lede">Configure ports, start and stop services individually or all at once, then share LAN links with your players.</p>
+        </div>
+        <div class="hero-actions">
+          <button id="startButton" class="button button-primary">Start All</button>
+          <button id="stopButton" class="button">Stop All</button>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="card card-config">
+          <div class="card-header">
+            <h2>Ports</h2>
+            <button id="saveButton" class="button button-ghost">Save</button>
+          </div>
+          <div class="field-grid">
+            <label class="field">
+              <span>Backend</span>
+              <input id="backendPort" type="number" min="1" max="65535" />
+            </label>
+            <label class="field">
+              <span>GM</span>
+              <input id="gmPort" type="number" min="1" max="65535" />
+            </label>
+            <label class="field">
+              <span>Player</span>
+              <input id="playerPort" type="number" min="1" max="65535" />
+            </label>
+          </div>
+          <p id="message" class="message"></p>
+          <div class="meta">
+            <div>
+              <span class="meta-label">Runtime assets</span>
+              <strong id="runtimeRoot"></strong>
+            </div>
+            <div>
+              <span class="meta-label">Writable data</span>
+              <strong id="dataDir"></strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="card card-status">
+          <div class="card-header">
+            <h2>Services</h2>
+            <button id="openDataButton" class="button button-ghost">Open Data Folder</button>
+          </div>
+          <div class="service-list">
+            <article class="service" data-service="backend">
+              <div>
+                <h3>Backend</h3>
+                <p id="backendUrl"></p>
+              </div>
+              <div class="service-actions">
+                <span id="backendStatus" class="badge">Stopped</span>
+                <div class="service-controls">
+                  <button id="startBackendButton" class="button button-small">Start</button>
+                  <button id="stopBackendButton" class="button button-small">Stop</button>
+                </div>
+              </div>
+            </article>
+            <article class="service" data-service="gm">
+              <div>
+                <h3>GM View</h3>
+                <p id="gmUrl"></p>
+              </div>
+              <div class="service-actions">
+                <span id="gmStatus" class="badge">Stopped</span>
+                <div class="service-controls">
+                  <button id="startGmButton" class="button button-small">Start</button>
+                  <button id="stopGmButton" class="button button-small">Stop</button>
+                  <button id="openGmButton" class="button button-small">Open</button>
+                </div>
+              </div>
+            </article>
+            <article class="service" data-service="player">
+              <div>
+                <h3>Player View</h3>
+                <p id="playerUrl"></p>
+              </div>
+              <div class="service-actions">
+                <span id="playerStatus" class="badge">Stopped</span>
+                <div class="service-controls">
+                  <button id="startPlayerButton" class="button button-small">Start</button>
+                  <button id="stopPlayerButton" class="button button-small">Stop</button>
+                  <button id="openPlayerButton" class="button button-small">Open</button>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="lan-share">
+            <h3>Share these LAN links with players</h3>
+            <p class="lan-note">These addresses work for devices on your local network. Start GM and Player services first.</p>
+            <div id="lanShareList" class="lan-share-list"></div>
+          </div>
+        </section>
+
+        <section class="card card-logs">
+          <div class="card-header">
+            <h2>Logs</h2>
+            <span id="stackState" class="stack-state">Idle</span>
+          </div>
+          <pre id="logs" class="logs"></pre>
+        </section>
+      </main>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

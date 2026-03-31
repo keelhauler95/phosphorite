@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { SocketEvent } from '../types';
+import { getSocketUrl } from '../utils/runtimeConfig';
 
 class SocketService {
   private socket: Socket | null = null;
@@ -10,9 +11,7 @@ class SocketService {
       return this.socket;
     }
 
-    // Use window.location.origin for production (works with nginx proxy)
-    // In development, Vite's proxy handles this
-    this.socket = io(window.location.origin, {
+    this.socket = io(getSocketUrl(), {
       transports: ['websocket'],
       autoConnect: true
     });

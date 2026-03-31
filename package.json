@@ -4,17 +4,20 @@
   "description": "Complete rewrite of Phosphorite with proper architecture",
   "private": true,
   "scripts": {
-    "install-all": "cd backend && npm install && cd ../gm-client && npm install && cd ../player-client && npm install",
+    "install-all": "cd backend && npm install && cd ../gm-client && npm install && cd ../player-client && npm install && cd ../launcher-app && npm install",
     "postinstall": "npm run install-all || echo \"postinstall: subproject install failed; you can run 'npm run install-all' manually\"",
     "dev": "npx concurrently \"npm run backend\" \"npm run gm-client\" \"npm run player-client\"",
     "backend": "cd backend && npm run dev",
     "gm-client": "cd gm-client && npm run dev",
     "player-client": "cd player-client && npm run dev",
     "build": "cd backend && npm run build && cd ../gm-client && npm run build && cd ../player-client && npm run build",
+    "prepare:runtime": "node scripts/prepare-runtime.js",
+    "launcher": "npm run build && npm run prepare:runtime && cd launcher-app && npm run dev",
     "start": "npx concurrently \"npm run start:backend\" \"npm run start:gm\" \"npm run start:player\"",
     "start:backend": "cd backend && npm start",
     "start:gm": "node scripts/run-preview.js gm-client",
-    "start:player": "node scripts/run-preview.js player-client"
+    "start:player": "node scripts/run-preview.js player-client",
+    "dist": "npm run build && npm run prepare:runtime && cd launcher-app && npm run dist"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

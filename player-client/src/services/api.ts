@@ -1,6 +1,7 @@
 import { Character, GameApp, Message, GameTimeState } from '../types';
+import { getApiBaseUrl } from '../utils/runtimeConfig';
 
-const API_BASE = '/api';
+const API_BASE = getApiBaseUrl();
 
 // Character authentication
 export const charactersApi = {

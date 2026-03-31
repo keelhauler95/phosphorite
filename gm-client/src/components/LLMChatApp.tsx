@@ -5,6 +5,9 @@ import { GameApp, Character, LLMChatAppData, LLMChatHistoryEntry, LLMChatMessage
 import { appsApi } from '../services/api';
 import socketService from '../services/socket';
 import AccessControlPanel from './AccessControlPanel';
+import { getApiBaseUrl } from '../utils/runtimeConfig';
+
+const LLM_CHAT_API_BASE = `${getApiBaseUrl().replace(/\/+$/, '')}/llm-chat`;
 
 const EMPTY_APP_DATA: LLMChatAppData = {
   endpoint: '',
@@ -402,7 +405,7 @@ function LLMChatApp({ app, characters, onBack, onDelete }: Props) {
     setTestResponse('Testing...');
 
     try {
-      const response = await fetch(`/api/llm-chat/${app.id}/chat`, {
+      const response = await fetch(`${LLM_CHAT_API_BASE}/${encodeURIComponent(app.id)}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

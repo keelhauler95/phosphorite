@@ -5,9 +5,11 @@ import { PlayerThemeSettings, ThemePreset, ThemeEffectSettings } from '../types'
 import { ChevronDown, Info } from 'lucide-react';
 import { SETTINGS_SECTIONS, type SettingsSection } from './settingsSections';
 import GamestateView from './GamestateView';
+import { getApiBaseUrl } from '../utils/runtimeConfig';
 
 const DEFAULT_HEADER = 'PHOSPHORITE';
 const DEFAULT_LOGIN = 'WELCOME TO THE PHOSPHORITE TERMINAL';
+const SETTINGS_API_BASE = `${getApiBaseUrl().replace(/\/+$/, '')}/settings`;
 
 const DEFAULT_EFFECT_SETTINGS: ThemeEffectSettings = {
   embers: {
@@ -1115,7 +1117,7 @@ function SettingsForm({ activeSection: controlledSection, onSectionChange }: Set
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const response = await fetch('/api/settings');
+        const response = await fetch(SETTINGS_API_BASE);
         if (!response.ok) {
           throw new Error('Failed to load settings');
         }
@@ -1415,7 +1417,7 @@ function SettingsForm({ activeSection: controlledSection, onSectionChange }: Set
   };
 
   const patchSetting = async (key: string, value: string) => {
-    const response = await fetch(`/api/settings/${key}`, {
+    const response = await fetch(`${SETTINGS_API_BASE}/${encodeURIComponent(key)}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ value })

@@ -13,10 +13,9 @@ import {
   GamestateSection,
   TerminalExecuteResponse
 } from '../types';
+import { getApiBaseUrl } from '../utils/runtimeConfig';
 
-// Use relative URL for production (nginx proxies /api to backend)
-// In development, Vite's proxy handles this
-const API_BASE_URL = '/api';
+const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,

@@ -45,6 +45,9 @@ Thumbs.db
 *.tmp
 *.temp
 .cache/
+launcher-app/runtime/
+launcher-app/release/
+phosphorite-data/
 
 # Coverage
 coverage/

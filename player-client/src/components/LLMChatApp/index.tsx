@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { LLMChatAppData, LLMChatMessage } from '../../types';
 import Teletype from '../Teletype';
+import { getApiBaseUrl } from '../../utils/runtimeConfig';
 import './style.scss';
+
+const LLM_CHAT_API_BASE = `${getApiBaseUrl().replace(/\/+$/, '')}/llm-chat`;
 
 interface Props {
   appId: string;
@@ -67,7 +70,7 @@ function LLMChatApp({ appId, appData, username }: Props) {
     };
 
     try {
-      const response = await fetch(`/api/llm-chat/${appId}/chat`, {
+      const response = await fetch(`${LLM_CHAT_API_BASE}/${encodeURIComponent(appId)}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

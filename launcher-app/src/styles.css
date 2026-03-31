@@ -1,0 +1,352 @@
+:root {
+  color-scheme: dark;
+  --bg: #061014;
+  --bg-panel: rgba(10, 24, 30, 0.84);
+  --bg-panel-strong: rgba(12, 34, 42, 0.96);
+  --border: rgba(114, 214, 210, 0.2);
+  --text: #e5f8f5;
+  --muted: #8ab6b3;
+  --accent: #7ce8d9;
+  --accent-strong: #d8ff5d;
+  --danger: #ff7b73;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(124, 232, 217, 0.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(216, 255, 93, 0.1), transparent 24%),
+    linear-gradient(160deg, #04090c 0%, #081114 52%, #03181d 100%);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: linear-gradient(145deg, rgba(17, 36, 41, 0.88), rgba(8, 19, 24, 0.92));
+  box-shadow: var(--shadow);
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: var(--accent-strong);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(36px, 5vw, 54px);
+  line-height: 0.95;
+}
+
+.lede {
+  max-width: 720px;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--bg-panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+}
+
+.card-config,
+.card-status {
+  padding: 24px;
+}
+
+.card-logs {
+  grid-column: 1 / -1;
+  padding: 0;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.field input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(124, 232, 217, 0.22);
+  border-radius: 14px;
+  background: rgba(4, 10, 12, 0.65);
+  color: var(--text);
+}
+
+.meta {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(124, 232, 217, 0.12);
+}
+
+.meta-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.meta strong {
+  display: block;
+  font-family: "IBM Plex Mono", "Cascadia Code", monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  word-break: break-all;
+}
+
+.service-list {
+  display: grid;
+  gap: 12px;
+}
+
+.service {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid rgba(124, 232, 217, 0.12);
+  border-radius: 18px;
+  background: rgba(5, 11, 14, 0.55);
+}
+
+.service p {
+  margin-top: 6px;
+  color: var(--muted);
+  font-family: "IBM Plex Mono", "Cascadia Code", monospace;
+  font-size: 12px;
+}
+
+.service-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.service-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.badge,
+.stack-state {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 86px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: rgba(138, 182, 179, 0.14);
+  color: var(--muted);
+}
+
+.badge[data-state="healthy"] {
+  background: rgba(124, 232, 217, 0.14);
+  color: var(--accent);
+}
+
+.badge[data-state="starting"] {
+  background: rgba(216, 255, 93, 0.16);
+  color: var(--accent-strong);
+}
+
+.button {
+  border: 1px solid rgba(124, 232, 217, 0.2);
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: rgba(10, 27, 32, 0.78);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(124, 232, 217, 0.42);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button-primary {
+  background: linear-gradient(135deg, rgba(124, 232, 217, 0.24), rgba(216, 255, 93, 0.18));
+  border-color: rgba(216, 255, 93, 0.34);
+}
+
+.button-ghost {
+  background: transparent;
+}
+
+.button-small {
+  padding: 9px 14px;
+  font-size: 13px;
+}
+
+.lan-share {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(124, 232, 217, 0.12);
+}
+
+.lan-note {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.lan-share-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.lan-share-item {
+  padding: 12px;
+  border: 1px solid rgba(124, 232, 217, 0.16);
+  border-radius: 12px;
+  background: rgba(3, 8, 10, 0.45);
+}
+
+.lan-share-item h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--accent-strong);
+}
+
+.lan-share-item p {
+  margin: 4px 0;
+  font-size: 12px;
+  color: var(--text);
+  font-family: "IBM Plex Mono", "Cascadia Code", monospace;
+}
+
+.lan-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.message {
+  min-height: 20px;
+  margin-top: 16px;
+  color: var(--muted);
+}
+
+.message[data-tone="error"] {
+  color: var(--danger);
+}
+
+.logs {
+  min-height: 320px;
+  max-height: 420px;
+  margin: 0;
+  padding: 24px;
+  overflow: auto;
+  background: rgba(2, 7, 9, 0.92);
+  color: #c8f7ef;
+  font-family: "IBM Plex Mono", "Cascadia Code", monospace;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.card-logs .card-header {
+  margin: 0;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(124, 232, 217, 0.12);
+  background: var(--bg-panel-strong);
+}
+
+@media (max-width: 960px) {
+  .shell {
+    padding: 18px;
+  }
+
+  .hero,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    flex-direction: column;
+  }
+
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+}

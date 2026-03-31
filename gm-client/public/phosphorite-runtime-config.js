@@ -1,0 +1,1 @@
+window.__PHOS_RUNTIME_CONFIG__ = window.__PHOS_RUNTIME_CONFIG__ || {};

@@ -4,6 +4,7 @@ import http from 'http';
 import path from 'path';
 import fs from 'fs';
 import { initDatabase } from './db/database';
+import { getDataDir } from './config/runtime';
 import { initializeSocketIO } from './services/socketService';
 import { telemetryService } from './services/telemetryService';
 import { setTelemetryService } from './services/gameTimeService';
@@ -25,7 +26,7 @@ const HOST = process.env.PHOS_BACKEND_HOST || '0.0.0.0';
 // Async initialization
 async function startServer() {
   // Ensure data directory exists
-  const dataDir = path.join(__dirname, '../data');
+  const dataDir = getDataDir();
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
   }

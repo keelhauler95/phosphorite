@@ -1,10 +1,7 @@
 # Phosphorite
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-18.x-61dafb.svg)](https://reactjs.org/)
-[![Socket.IO](https://img.shields.io/badge/Socket.IO-4.x-black.svg)](https://socket.io/)
+[![Latest Release](https://img.shields.io/github/v/release/keelhauler95/phosphorite?display_name=tag)](https://github.com/keelhauler95/phosphorite/releases/latest)
 
 <p align="center">
   <img src="phosphorite_icon.svg" alt="Phosphorite Logo" width="200" style="filter: brightness(0) saturate(100%) invert(82%) sepia(32%) saturate(1841%) hue-rotate(156deg) brightness(103%) contrast(101%);" />
@@ -30,32 +27,29 @@ While this is not my day job, a lot of time and effort went into building Phosph
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/B0B41SLBNR)
 
-## Quick Start
+## Quick Launch
 
-If you know how to use Node and npm: clone the repo, then `npm install` > `npm run build` > `npm run start`.
+1. Download the latest archive from [GitHub Releases](https://github.com/keelhauler95/phosphorite/releases/latest).
+2. Extract it anywhere on your machine.
+3. Start the single GUI launcher entry point for your OS:
+   - **Windows**: `Phosphorite Launcher.exe`
+   - **macOS**: `Phosphorite Launcher.app`
+   - **Linux**: extracted launcher binary
 
-If you're not familiar with Git, terminals, or developer tools and just want to play, follow these simple steps to get Phosphorite running on your computer.
+From the launcher UI you can set ports, start/stop each service, start/stop all services, and copy the LAN addresses for players.
 
-1) Download the project
+### Running with Docker
 
-    - Visit this repository's main page on GitHub and click the green **Code** button close to the top of the page, then choose **Download ZIP**.
-    - Save the ZIP to your computer and extract/unzip it to a folder (example: `Downloads/Phosphorite`).
+```bash
+cp .env.example .env   # if you haven't already
+docker compose up --build
+```
 
-2) Open the exrtracted folder and double-click on the correct launcher for your operating system:
-
-    - **Windows**: `launcher.cmd` (or `launcher.ps1` for PowerShell)
-    - **macOS**: `launcher.command`
-    - **Linux**: `launcher.sh`
-  
-    If the launcher file does not run, make sure you set its permissions to executable.
-    If it runs but complains about not being able to install Node.js, please download it from [the official Node.js website](https://nodejs.org/en/download) and install it, then run the launcher again.
-
-At the moment, I am not providing prepackaged releases of the services.
-    
+The compose file builds images and exposes the same configurable ports.
 
 ## Features
 
-The game includes a substantial number of features, and I did my best to make both the GM and Player interfaces as straightforward as possible. Most interface elements can be hovered over with the mouse to display a short explanation of their purpose and usage. This is not intended as a replacement for proper documentation, which is currently a work in progress.
+The game includes a substantial number of features, and I did my best to make both the GM and Player interfaces as straightforward as possible. Most interface elements can be hovered over with the mouse to display a short explanation of their purpose and usage. This is not intended as a replacement for proper documentation, on which I am still working and will eventually release.
 
 ### Game Time
 
@@ -205,90 +199,6 @@ Phosphorite is composed by three services that talk to each other in real-time:
 - the **Player Terminal** (Vite + React) offers a terminal-like interface for players to interact with
 
 Each package is independent; the root `package.json` only coordinates installs and scripts.
-
-## Requirements
-
-- Node.js 18+
-- npm 10+
-- Docker (optional, if you want to run it from a container)
-
-## Configuration
-
-Every service reads the same environment variables. Copy `.env.example` to `.env` (or `.env.local`) and tweak as needed:
-
-```bash
-# ports you want exposed on your machine
-PHOS_BACKEND_PORT=3100
-PHOS_GM_PORT=5173
-PHOS_PLAYER_PORT=5174
-
-# optional host bindings/origins
-PHOS_BACKEND_HOST=0.0.0.0
-PHOS_GM_HOST=0.0.0.0
-PHOS_PLAYER_HOST=0.0.0.0
-PHOS_BACKEND_ORIGIN=
-```
-
-The backend defaults to `3100`, GM dev server to `5173`, player dev server to `5174` when the variables are missing.
-
-## Launching the services
-
-Four launcher scripts are provided, use the correct one for your operating system:
-
-- **Windows PowerShell**: double-click `launcher.ps1` or run from PowerShell
-- **Windows CMD**: double-click `launcher.cmd` or run from Command Prompt
-- **macOS / Linux**: make `launcher.sh` executable once, then run:
-
-  ```bash
-  chmod +x launcher.sh
-  ./launcher.sh
-  ```
-
-- **macOS (Finder)**: make `launcher.command` executable once, then double-click:
-
-  ```bash
-  chmod +x launcher.command
-  # Then double-click launcher.command
-  ```
-
-The launcher opens a shell from which you can:
-
-1. **Install and build**: installs the requirements to run all services, then builds
-2. **Configure ports**: customize backend/GM/player ports
-3. **Start the game**: starts the three services
-
-The launcher tracks running processes so you can stop or relaunch the stack cleanly.
-All launchers use the same Node.js logic from `scripts/bootstrap.js`.
-
-### Running with Docker
-
-```bash
-cp .env.example .env   # if you haven't already
-docker compose up --build
-```
-
-The compose file builds images and exposes the same configurable ports.
-
-## Local Development
-
-1. **Install dependencies:**
-
-   ```bash
-   npm install # installs backend/, gm-client/, player-client/
-   ```
-
-2. **Start the stack:**
-
-   ```bash
-   npm run dev
-   ```
-
-   This concurrently launches:
-   - Backend on `http://localhost:${PHOS_BACKEND_PORT}`
-   - GM dashboard on `http://localhost:${PHOS_GM_PORT}`
-   - Player terminal on `http://localhost:${PHOS_PLAYER_PORT}`
-
-To work on a single package you can still `cd` into it and run `npm run dev` / `npm run build` / `npm start` as usual.
 
 ## Troubleshooting
 
