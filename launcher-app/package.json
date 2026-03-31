@@ -26,6 +26,10 @@
     ],
     "extraResources": [
       {
+        "from": "../phosphorite_icon.svg",
+        "to": "phosphorite_icon.svg"
+      },
+      {
         "from": "runtime",
         "to": "runtime"
       }

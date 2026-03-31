@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron');
 const fs = require('fs');
 const http = require('http');
 const os = require('os');
@@ -63,6 +63,14 @@ function getRuntimeRoot() {
   }
 
   return path.join(getRepoRoot(), 'launcher-app', 'runtime');
+}
+
+function getLauncherIconPath() {
+  if (app.isPackaged) {
+    return path.join(process.resourcesPath, 'phosphorite_icon.svg');
+  }
+
+  return path.join(getRepoRoot(), 'phosphorite_icon.svg');
 }
 
 function ensureWritableDirectories() {
@@ -443,12 +451,16 @@ function createWindow() {
     minWidth: 920,
     minHeight: 620,
     backgroundColor: '#081114',
+    icon: getLauncherIconPath(),
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false
     }
   });
+
+  mainWindow.setMenuBarVisibility(false);
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 }
@@ -488,6 +500,7 @@ ipcMain.handle('launcher:open', async (_event, target) => {
 
 app.whenReady().then(() => {
   ensureWritableDirectories();
+  Menu.setApplicationMenu(null);
   createWindow();
 
   if (smokeTestMode) {
