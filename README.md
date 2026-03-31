@@ -1,10 +1,7 @@
 # Phosphorite
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-18.x-61dafb.svg)](https://reactjs.org/)
-[![Socket.IO](https://img.shields.io/badge/Socket.IO-4.x-black.svg)](https://socket.io/)
+[![Latest Release](https://img.shields.io/github/v/release/keelhauler95/phosphorite?display_name=tag)](https://github.com/keelhauler95/phosphorite/releases/latest)
 
 <p align="center">
   <img src="phosphorite_icon.svg" alt="Phosphorite Logo" width="200" style="filter: brightness(0) saturate(100%) invert(82%) sepia(32%) saturate(1841%) hue-rotate(156deg) brightness(103%) contrast(101%);" />
@@ -32,7 +29,7 @@ While this is not my day job, a lot of time and effort went into building Phosph
 
 ## Quick Launch
 
-1. Download the latest archive from **GitHub Releases**.
+1. Download the latest archive from [GitHub Releases](https://github.com/keelhauler95/phosphorite/releases/latest).
 2. Extract it anywhere on your machine.
 3. Start the single GUI launcher entry point for your OS:
    - **Windows**: `Phosphorite Launcher.exe`
@@ -40,11 +37,19 @@ While this is not my day job, a lot of time and effort went into building Phosph
    - **Linux**: extracted launcher binary
 
 From the launcher UI you can set ports, start/stop each service, start/stop all services, and copy the LAN addresses for players.
-    
+
+### Running with Docker
+
+```bash
+cp .env.example .env   # if you haven't already
+docker compose up --build
+```
+
+The compose file builds images and exposes the same configurable ports.
 
 ## Features
 
-The game includes a substantial number of features, and I did my best to make both the GM and Player interfaces as straightforward as possible. Most interface elements can be hovered over with the mouse to display a short explanation of their purpose and usage. This is not intended as a replacement for proper documentation, which is currently a work in progress.
+The game includes a substantial number of features, and I did my best to make both the GM and Player interfaces as straightforward as possible. Most interface elements can be hovered over with the mouse to display a short explanation of their purpose and usage. This is not intended as a replacement for proper documentation, on which I am still working and will eventually release.
 
 ### Game Time
 
@@ -194,15 +199,6 @@ Phosphorite is composed by three services that talk to each other in real-time:
 - the **Player Terminal** (Vite + React) offers a terminal-like interface for players to interact with
 
 Each package is independent; the root `package.json` only coordinates installs and scripts.
-
-### Running with Docker
-
-```bash
-cp .env.example .env   # if you haven't already
-docker compose up --build
-```
-
-The compose file builds images and exposes the same configurable ports.
 
 ## Troubleshooting
 
