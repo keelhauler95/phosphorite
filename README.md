@@ -29,6 +29,8 @@ While this is not my day job, a lot of time and effort went into building Phosph
 
 ## Quick Launch
 
+> **Note:** The launcher binaries are unsigned (code signing certificates are not free, and this is a hobby project), so your OS may show a security warning on first launch; you can safely dismiss it. The full source code is public if you'd like to verify it yourself, and Docker is always an alternative if you prefer not to run unsigned binaries.
+
 1. Download the latest archive from [GitHub Releases](https://github.com/keelhauler95/phosphorite/releases/latest).
 2. Extract it anywhere on your machine.
 3. Start the single GUI launcher entry point for your OS:
