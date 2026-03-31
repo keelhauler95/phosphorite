@@ -1,0 +1,54 @@
+name: Release Launcher
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_glob: launcher-app/release/*.zip
+          - os: ubuntu-latest
+            artifact_glob: launcher-app/release/*.tar.gz
+          - os: macos-latest
+            artifact_glob: launcher-app/release/*.zip
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+            gm-client/package-lock.json
+            player-client/package-lock.json
+            launcher-app/package-lock.json
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Build and package
+        run: npm run dist
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.artifact_glob }}

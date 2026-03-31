@@ -50,7 +50,31 @@ If you're not familiar with Git, terminals, or developer tools and just want to 
     If the launcher file does not run, make sure you set its permissions to executable.
     If it runs but complains about not being able to install Node.js, please download it from [the official Node.js website](https://nodejs.org/en/download) and install it, then run the launcher again.
 
-At the moment, I am not providing prepackaged releases of the services.
+If you are using a GitHub Release archive, you do not need to install Node.js: extract the archive and run the included launcher executable.
+
+## For End Users (Release Archive)
+
+Download the latest release archive from GitHub Releases, extract it anywhere, then launch the app:
+
+- Windows: `Phosphorite Launcher.exe`
+- macOS: `Phosphorite Launcher.app` (inside the zip)
+- Linux: run the extracted launcher binary
+
+Use the launcher UI to set ports, start/stop the stack, open GM/Player views, and inspect logs.
+
+## For Maintainers (Build and Publish Releases)
+
+Releases are built from the GitHub Actions workflow `.github/workflows/release-launcher.yml`.
+
+1. Create and push a version tag, for example `v0.2.0`.
+2. GitHub Actions builds launcher archives for Windows, macOS, and Linux.
+3. Artifacts are uploaded automatically to the GitHub Release tied to that tag.
+
+To build locally before tagging:
+
+```bash
+npm run dist
+```
     
 
 ## Features
