@@ -26,8 +26,8 @@
     ],
     "extraResources": [
       {
-        "from": "../phosphorite_icon.svg",
-        "to": "phosphorite_icon.svg"
+        "from": "../assets/icons",
+        "to": "icons"
       },
       {
         "from": "runtime",
@@ -36,17 +36,20 @@
     ],
     "asar": true,
     "win": {
+      "icon": "../assets/icons/icon.ico",
       "signAndEditExecutable": false,
       "target": [
         "zip"
       ]
     },
     "linux": {
+      "icon": "../assets/icons/icon.png",
       "target": [
         "tar.gz"
       ]
     },
     "mac": {
+      "icon": "../assets/icons/icon.icns",
       "target": [
         "zip"
       ]

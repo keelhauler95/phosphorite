@@ -66,11 +66,18 @@ function getRuntimeRoot() {
 }
 
 function getLauncherIconPath() {
+  const iconFileByPlatform = {
+    win32: 'icon.ico',
+    darwin: 'icon.icns',
+    linux: 'icon.png'
+  };
+  const iconFile = iconFileByPlatform[process.platform] || 'icon.png';
+
   if (app.isPackaged) {
-    return path.join(process.resourcesPath, 'phosphorite_icon.svg');
+    return path.join(process.resourcesPath, 'icons', iconFile);
   }
 
-  return path.join(getRepoRoot(), 'phosphorite_icon.svg');
+  return path.join(getRepoRoot(), 'assets', 'icons', iconFile);
 }
 
 function ensureWritableDirectories() {
