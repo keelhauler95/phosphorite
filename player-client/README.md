@@ -1,26 +1,13 @@
 # Phosphorite Player Client
 
-Player-facing terminal interface for the Phosphorite game system.
+This is the player client component of Phosphorite.
 
-## Features
+## Customization
 
-- Retro CRT terminal aesthetic with VGA font and scanlines
-- Real-time synchronization via WebSocket
-- Character-based authentication
-- Permission-based app access
-- Message inbox system
+Player UI appearance and copy are driven by GM client settings (theme, header, login text) and update live when changed.
 
-## Development
+General runtime options are controlled via environment variables. See [.env.example](.env.example) for the full list.
 
-```bash
-npm install
-npm run dev
-```
-
-The client will run on http://localhost:3001 and proxy API requests to the backend on port 3000.
-
-## Build
-
-```bash
-npm run build
-```
+- `PHOS_PLAYER_PORT` sets the UI port.
+- `PHOS_PLAYER_HOST` sets the bind host.
+- `PHOS_BACKEND_ORIGIN` overrides the backend origin used for API/socket proxying.
