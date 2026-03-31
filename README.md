@@ -40,11 +40,19 @@ While this is not my day job, a lot of time and effort went into building Phosph
    - **Linux**: extracted launcher binary
 
 From the launcher UI you can set ports, start/stop each service, start/stop all services, and copy the LAN addresses for players.
-    
+
+### Running with Docker
+
+```bash
+cp .env.example .env   # if you haven't already
+docker compose up --build
+```
+
+The compose file builds images and exposes the same configurable ports.
 
 ## Features
 
-The game includes a substantial number of features, and I did my best to make both the GM and Player interfaces as straightforward as possible. Most interface elements can be hovered over with the mouse to display a short explanation of their purpose and usage. This is not intended as a replacement for proper documentation, which is currently a work in progress.
+The game includes a substantial number of features, and I did my best to make both the GM and Player interfaces as straightforward as possible. Most interface elements can be hovered over with the mouse to display a short explanation of their purpose and usage. This is not intended as a replacement for proper documentation, on which I am still working and will eventually release.
 
 ### Game Time
 
@@ -194,15 +202,6 @@ Phosphorite is composed by three services that talk to each other in real-time:
 - the **Player Terminal** (Vite + React) offers a terminal-like interface for players to interact with
 
 Each package is independent; the root `package.json` only coordinates installs and scripts.
-
-### Running with Docker
-
-```bash
-cp .env.example .env   # if you haven't already
-docker compose up --build
-```
-
-The compose file builds images and exposes the same configurable ports.
 
 ## Troubleshooting
 
