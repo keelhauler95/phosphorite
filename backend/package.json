@@ -16,7 +16,7 @@
     "handlebars": "^4.7.8",
     "socket.io": "^4.8.3",
     "sql.js": "^1.13.0",
-    "uuid": "^13.0.0"
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

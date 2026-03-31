@@ -4,7 +4,7 @@
   "description": "Game Master Client for Phosphorite",
   "private": true,
   "dependencies": {
-    "@types/uuid": "^11.0.0",
+    "@types/uuid": "^10.0.0",
     "@uiw/react-textarea-code-editor": "^3.1.1",
     "axios": "^1.13.2",
     "lucide-react": "^0.562.0",
@@ -13,7 +13,7 @@
     "react-dom": "^19.2.3",
     "react-router-dom": "^7.0.2",
     "socket.io-client": "^4.8.3",
-    "uuid": "^13.0.0"
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/node": "^25.0.8",
