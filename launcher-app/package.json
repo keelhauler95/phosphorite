@@ -1,0 +1,51 @@
+{
+  "name": "phosphorite-launcher",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Desktop launcher for self-contained Phosphorite releases.",
+  "author": "Matteo Ruaro",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "electron .",
+    "smoke-test": "electron . --smoke-test",
+    "dist": "electron-builder --publish never"
+  },
+  "devDependencies": {
+    "electron": "^35.7.5",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "io.github.keelhauler95.phosphorite.launcher",
+    "productName": "Phosphorite Launcher",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "runtime",
+        "to": "runtime"
+      }
+    ],
+    "asar": true,
+    "win": {
+      "signAndEditExecutable": false,
+      "target": [
+        "zip"
+      ]
+    },
+    "linux": {
+      "target": [
+        "tar.gz"
+      ]
+    },
+    "mac": {
+      "target": [
+        "zip"
+      ]
+    }
+  }
+}
