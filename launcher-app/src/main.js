@@ -42,6 +42,10 @@ function getDistributionRoot() {
 }
 
 function getWritableRoot() {
+  if (app.isPackaged && process.platform === 'darwin') {
+    return path.join(app.getPath('userData'), 'phosphorite-data');
+  }
+
   return path.join(getDistributionRoot(), 'phosphorite-data');
 }
 
@@ -506,7 +510,12 @@ ipcMain.handle('launcher:open', async (_event, target) => {
 });
 
 app.whenReady().then(() => {
-  ensureWritableDirectories();
+  try {
+    ensureWritableDirectories();
+  } catch (error) {
+    appendLog('launcher', `Failed to create writable directories: ${error.message}`);
+  }
+
   Menu.setApplicationMenu(null);
   createWindow();
 
