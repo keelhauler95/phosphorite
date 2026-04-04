@@ -58,6 +58,7 @@ coverage/
 *.md
 !README.md
 !LICENSE.md
+!docs/*
 
 # Docker
 .env
