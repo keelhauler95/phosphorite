@@ -47,7 +47,9 @@ async function startServer() {
 
   // Request logging
   app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`);
+    if (req.path !== '/api/health') {
+      console.log(`${req.method} ${req.path}`);
+    }
     next();
   });
 
