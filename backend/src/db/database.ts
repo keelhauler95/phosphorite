@@ -291,31 +291,52 @@ export class Statement {
     this.stmt = db.prepare(sql);
   }
 
+  private finalize(): void {
+    if (!this.stmt) {
+      return;
+    }
+
+    try {
+      this.stmt.reset();
+    } finally {
+      this.stmt.free();
+      this.stmt = null;
+    }
+  }
+
   run(...params: any[]): { lastInsertRowid: number; changes: number } {
-    this.stmt.bind(params);
-    this.stmt.step();
-    const lastInsertRowid = this.db.exec('SELECT last_insert_rowid()')[0]?.values[0]?.[0] as number || 0;
-    const changes = this.db.getRowsModified();
-    this.stmt.reset();
-    saveDatabase(); // Auto-save after write
-    return { lastInsertRowid, changes };
+    try {
+      this.stmt.bind(params);
+      this.stmt.step();
+      const lastInsertRowid = this.db.exec('SELECT last_insert_rowid()')[0]?.values[0]?.[0] as number || 0;
+      const changes = this.db.getRowsModified();
+      saveDatabase(); // Auto-save after write
+      return { lastInsertRowid, changes };
+    } finally {
+      this.finalize();
+    }
   }
 
   get(...params: any[]): any {
-    this.stmt.bind(params);
-    const result = this.stmt.step() ? this.stmt.getAsObject() : undefined;
-    this.stmt.reset();
-    return result;
+    try {
+      this.stmt.bind(params);
+      return this.stmt.step() ? this.stmt.getAsObject() : undefined;
+    } finally {
+      this.finalize();
+    }
   }
 
   all(...params: any[]): any[] {
-    this.stmt.bind(params);
-    const results: any[] = [];
-    while (this.stmt.step()) {
-      results.push(this.stmt.getAsObject());
+    try {
+      this.stmt.bind(params);
+      const results: any[] = [];
+      while (this.stmt.step()) {
+        results.push(this.stmt.getAsObject());
+      }
+      return results;
+    } finally {
+      this.finalize();
     }
-    this.stmt.reset();
-    return results;
   }
 }
 

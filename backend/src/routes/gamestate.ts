@@ -588,24 +588,28 @@ router.post('/import', async (req: Request, res: Response) => {
         INSERT INTO messages (id, sender, recipients, subject, body, sent_at, read_status, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
-      parsedState.messages.forEach((msg, index) => {
-        try {
-          insertMessage.run([
-            msg.id,
-            msg.sender,
-            stringifyJsonField(msg.recipients),
-            msg.subject,
-            msg.body,
-            stringifyJsonField(msg.sent_at),
-            stringifyJsonField(msg.read_status),
-            stringifyJsonField(msg.created_at),
-            stringifyJsonField(msg.updated_at)
-          ]);
-        } catch (error) {
-          console.error(`Failed to insert message ${index + 1}`, error);
-          throw error;
-        }
-      });
+      try {
+        parsedState.messages.forEach((msg, index) => {
+          try {
+            insertMessage.run([
+              msg.id,
+              msg.sender,
+              stringifyJsonField(msg.recipients),
+              msg.subject,
+              msg.body,
+              stringifyJsonField(msg.sent_at),
+              stringifyJsonField(msg.read_status),
+              stringifyJsonField(msg.created_at),
+              stringifyJsonField(msg.updated_at)
+            ]);
+          } catch (error) {
+            console.error(`Failed to insert message ${index + 1}`, error);
+            throw error;
+          }
+        });
+      } finally {
+        insertMessage.free();
+      }
       stats.messages = parsedState.messages.length;
     }
 
@@ -637,53 +641,56 @@ router.post('/import', async (req: Request, res: Response) => {
         )
       `);
 
-      parsedState.characters.forEach((character, index) => {
-        try {
-          const stmt = db.prepare(`
-            INSERT INTO characters (id, username, password, first_name, last_name, title, current_app_id, current_section, last_activity_at, can_access_messages, visual_effects, background, personality, fear, secret, motivation, agenda, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `);
+      const insertCharacter = db.prepare(`
+        INSERT INTO characters (id, username, password, first_name, last_name, title, current_app_id, current_section, last_activity_at, can_access_messages, visual_effects, background, personality, fear, secret, motivation, agenda, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      try {
+        parsedState.characters.forEach((character, index) => {
+          try {
+            const visualEffects = Array.isArray(character.visual_effects)
+              ? JSON.stringify(character.visual_effects)
+              : (character.visual_effects ?? '[]');
 
-          const visualEffects = Array.isArray(character.visual_effects)
-            ? JSON.stringify(character.visual_effects)
-            : (character.visual_effects ?? '[]');
+            const canAccessMessagesValue = (() => {
+              if (typeof character.can_access_messages === 'number') {
+                return character.can_access_messages ? 1 : 0;
+              }
+              if (typeof character.can_access_messages === 'boolean') {
+                return character.can_access_messages ? 1 : 0;
+              }
+              return 1;
+            })();
 
-          const canAccessMessagesValue = (() => {
-            if (typeof character.can_access_messages === 'number') {
-              return character.can_access_messages ? 1 : 0;
-            }
-            if (typeof character.can_access_messages === 'boolean') {
-              return character.can_access_messages ? 1 : 0;
-            }
-            return 1;
-          })();
-
-          stmt.run([
-            character.id,
-            character.username,
-            character.password,
-            character.first_name,
-            character.last_name,
-            character.title,
-            character.current_app_id === 'null' ? null : (character.current_app_id || null),
-            character.current_section || null,
-            character.last_activity_at || null,
-            canAccessMessagesValue,
-            visualEffects,
-            character.background || '',
-            character.personality || '',
-            character.fear || '',
-            character.secret || '',
-            character.motivation || '',
-            character.agenda || '',
-            stringifyJsonField(character.created_at),
-            stringifyJsonField(character.updated_at)
-          ]);
-        } catch (error) {
-          console.error(`Failed to insert character ${index + 1}`, error);
-          throw error;
-        }
-      });
+            insertCharacter.run([
+              character.id,
+              character.username,
+              character.password,
+              character.first_name,
+              character.last_name,
+              character.title,
+              character.current_app_id === 'null' ? null : (character.current_app_id || null),
+              character.current_section || null,
+              character.last_activity_at || null,
+              canAccessMessagesValue,
+              visualEffects,
+              character.background || '',
+              character.personality || '',
+              character.fear || '',
+              character.secret || '',
+              character.motivation || '',
+              character.agenda || '',
+              stringifyJsonField(character.created_at),
+              stringifyJsonField(character.updated_at)
+            ]);
+          } catch (error) {
+            console.error(`Failed to insert character ${index + 1}`, error);
+            throw error;
+          }
+        });
+      } finally {
+        insertCharacter.free();
+      }
 
       stats.characters = parsedState.characters.length;
     }
@@ -694,39 +701,47 @@ router.post('/import', async (req: Request, res: Response) => {
         INSERT INTO apps (id, name, category, allowed_users, data, created_at, updated_at, order_index)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `);
-      parsedState.apps.forEach((app, index) => {
-        try {
-          const orderIndex = typeof app.order_index === 'number' ? app.order_index : index;
-          const normalizedAppData = normalizeAppDataPayload(app.data);
-          insertApp.run([
-            app.id,
-            app.name,
-            app.category,
-            stringifyJsonField(app.allowed_users),
-            stringifyJsonField(normalizedAppData),
-            stringifyJsonField(app.created_at),
-            stringifyJsonField(app.updated_at),
-            orderIndex
-          ]);
-        } catch (error) {
-          console.error(`Failed to insert app ${index + 1}`, error);
-          throw error;
-        }
-      });
+      try {
+        parsedState.apps.forEach((app, index) => {
+          try {
+            const orderIndex = typeof app.order_index === 'number' ? app.order_index : index;
+            const normalizedAppData = normalizeAppDataPayload(app.data);
+            insertApp.run([
+              app.id,
+              app.name,
+              app.category,
+              stringifyJsonField(app.allowed_users),
+              stringifyJsonField(normalizedAppData),
+              stringifyJsonField(app.created_at),
+              stringifyJsonField(app.updated_at),
+              orderIndex
+            ]);
+          } catch (error) {
+            console.error(`Failed to insert app ${index + 1}`, error);
+            throw error;
+          }
+        });
+      } finally {
+        insertApp.free();
+      }
       stats.apps = parsedState.apps.length;
     }
 
     if (sectionsSet.has('settings')) {
       db.run('DELETE FROM settings');
       const insertSetting = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)');
-      parsedState.settings.forEach((setting, index) => {
-        try {
-          insertSetting.run([setting.key, stringifyJsonField(setting.value)]);
-        } catch (error) {
-          console.error(`Failed to insert setting ${index + 1}`, error);
-          throw error;
-        }
-      });
+      try {
+        parsedState.settings.forEach((setting, index) => {
+          try {
+            insertSetting.run([setting.key, stringifyJsonField(setting.value)]);
+          } catch (error) {
+            console.error(`Failed to insert setting ${index + 1}`, error);
+            throw error;
+          }
+        });
+      } finally {
+        insertSetting.free();
+      }
       stats.settings = parsedState.settings.length;
     }
 
