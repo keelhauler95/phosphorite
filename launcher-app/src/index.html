@@ -7,98 +7,102 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <svg class="icon-sprite" aria-hidden="true" focusable="false">
+      <symbol id="icon-play" viewBox="0 0 24 24">
+        <polygon points="6 3 20 12 6 21 6 3"></polygon>
+      </symbol>
+      <symbol id="icon-stop" viewBox="0 0 24 24">
+        <rect x="6" y="6" width="12" height="12" rx="1.5"></rect>
+      </symbol>
+      <symbol id="icon-folder-open" viewBox="0 0 24 24">
+        <path d="M6 19a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5l2 3h5a2 2 0 0 1 1.73 3"></path>
+        <path d="M6 19a2 2 0 0 1-1.94-2.5l1.2-4.5A2 2 0 0 1 7.2 10.5h12.6a2 2 0 0 1 1.94 2.5l-1.2 4.5A2 2 0 0 1 18.6 19Z"></path>
+      </symbol>
+      <symbol id="icon-file-text" viewBox="0 0 24 24">
+        <path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"></path>
+        <path d="M14 2v5h5"></path>
+        <path d="M9 13h6"></path>
+        <path d="M9 17h6"></path>
+        <path d="M9 9h1"></path>
+      </symbol>
+      <symbol id="icon-external-link" viewBox="0 0 24 24">
+        <path d="M15 3h6v6"></path>
+        <path d="M10 14 21 3"></path>
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+      </symbol>
+    </svg>
     <div class="shell">
       <header class="hero">
-        <div>
+        <div class="hero-brand">
+          <img id="headerIcon" class="header-icon" alt="Phosphorite" />
+          <div>
           <p class="eyebrow">Session control</p>
           <h1>Phosphorite Launcher</h1>
-          <p class="lede">Configure ports, start and stop services individually or all at once, then share LAN links with your players.</p>
+          </div>
         </div>
         <div class="hero-actions">
-          <button id="startButton" class="button button-primary">Start All</button>
-          <button id="stopButton" class="button">Stop All</button>
+          <button id="stackToggleButton" class="button button-primary button-toggle button-toggle-wide"><svg class="button-icon"><use href="#icon-play"></use></svg><span>Start All</span></button>
         </div>
       </header>
 
       <main class="grid">
-        <section class="card card-config">
-          <div class="card-header">
-            <h2>Ports</h2>
-            <button id="saveButton" class="button button-ghost">Save</button>
-          </div>
-          <div class="field-grid">
-            <label class="field">
-              <span>Backend</span>
-              <input id="backendPort" type="number" min="1" max="65535" />
-            </label>
-            <label class="field">
-              <span>GM</span>
-              <input id="gmPort" type="number" min="1" max="65535" />
-            </label>
-            <label class="field">
-              <span>Player</span>
-              <input id="playerPort" type="number" min="1" max="65535" />
-            </label>
-          </div>
-          <p id="message" class="message"></p>
-          <div class="meta">
-            <div>
-              <span class="meta-label">Runtime assets</span>
-              <strong id="runtimeRoot"></strong>
-            </div>
-            <div>
-              <span class="meta-label">Writable data</span>
-              <strong id="dataDir"></strong>
-            </div>
-          </div>
-        </section>
-
         <section class="card card-status">
           <div class="card-header">
-            <h2>Services</h2>
-            <button id="openDataButton" class="button button-ghost">Open Data Folder</button>
+            <div>
+              <h2>Services</h2>
+              <p id="message" class="message"></p>
+            </div>
+            <div class="card-header-actions">
+              <span id="stackState" class="stack-state">Idle</span>
+              <button id="openLogButton" class="button button-ghost"><svg class="button-icon"><use href="#icon-file-text"></use></svg><span>Open Log File</span></button>
+              <button id="openDataButton" class="button button-ghost"><svg class="button-icon"><use href="#icon-folder-open"></use></svg><span>Open Data Folder</span></button>
+            </div>
           </div>
           <div class="service-list">
             <article class="service" data-service="backend">
-              <div>
-                <h3>Backend</h3>
-                <p id="backendUrl"></p>
-              </div>
-              <div class="service-actions">
-                <span id="backendStatus" class="badge">Stopped</span>
-                <div class="service-controls">
-                  <button id="startBackendButton" class="button button-small">Start</button>
-                  <button id="stopBackendButton" class="button button-small">Stop</button>
+              <div class="service-main">
+                <div class="service-heading">
+                  <h3>Backend</h3>
+                  <p id="backendUrl"></p>
                 </div>
               </div>
+              <label class="service-port-field">
+                <span>Port</span>
+                <input id="backendPort" type="number" min="1" max="65535" />
+              </label>
+              <span id="backendStatus" class="badge">Stopped</span>
+              <button id="toggleBackendButton" class="button button-small service-action-button button-toggle"><svg class="button-icon"><use href="#icon-play"></use></svg><span>Start</span></button>
+              <span class="service-button-spacer" aria-hidden="true"></span>
             </article>
             <article class="service" data-service="gm">
-              <div>
-                <h3>GM View</h3>
-                <p id="gmUrl"></p>
-              </div>
-              <div class="service-actions">
-                <span id="gmStatus" class="badge">Stopped</span>
-                <div class="service-controls">
-                  <button id="startGmButton" class="button button-small">Start</button>
-                  <button id="stopGmButton" class="button button-small">Stop</button>
-                  <button id="openGmButton" class="button button-small">Open</button>
+              <div class="service-main">
+                <div class="service-heading">
+                  <h3>GM View</h3>
+                  <p id="gmUrl"></p>
                 </div>
               </div>
+              <label class="service-port-field">
+                <span>Port</span>
+                <input id="gmPort" type="number" min="1" max="65535" />
+              </label>
+              <span id="gmStatus" class="badge">Stopped</span>
+              <button id="toggleGmButton" class="button button-small service-action-button button-toggle"><svg class="button-icon"><use href="#icon-play"></use></svg><span>Start</span></button>
+              <button id="openGmButton" class="button button-small service-action-button"><svg class="button-icon"><use href="#icon-external-link"></use></svg><span>Open</span></button>
             </article>
             <article class="service" data-service="player">
-              <div>
-                <h3>Player View</h3>
-                <p id="playerUrl"></p>
-              </div>
-              <div class="service-actions">
-                <span id="playerStatus" class="badge">Stopped</span>
-                <div class="service-controls">
-                  <button id="startPlayerButton" class="button button-small">Start</button>
-                  <button id="stopPlayerButton" class="button button-small">Stop</button>
-                  <button id="openPlayerButton" class="button button-small">Open</button>
+              <div class="service-main">
+                <div class="service-heading">
+                  <h3>Player View</h3>
+                  <p id="playerUrl"></p>
                 </div>
               </div>
+              <label class="service-port-field">
+                <span>Port</span>
+                <input id="playerPort" type="number" min="1" max="65535" />
+              </label>
+              <span id="playerStatus" class="badge">Stopped</span>
+              <button id="togglePlayerButton" class="button button-small service-action-button button-toggle"><svg class="button-icon"><use href="#icon-play"></use></svg><span>Start</span></button>
+              <button id="openPlayerButton" class="button button-small service-action-button"><svg class="button-icon"><use href="#icon-external-link"></use></svg><span>Open</span></button>
             </article>
           </div>
 
@@ -107,14 +111,6 @@
             <p class="lan-note">These addresses work for devices on your local network. Start GM and Player services first.</p>
             <div id="lanShareList" class="lan-share-list"></div>
           </div>
-        </section>
-
-        <section class="card card-logs">
-          <div class="card-header">
-            <h2>Logs</h2>
-            <span id="stackState" class="stack-state">Idle</span>
-          </div>
-          <pre id="logs" class="logs"></pre>
         </section>
       </main>
     </div>

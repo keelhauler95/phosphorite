@@ -3,6 +3,7 @@ const fs = require('fs');
 const http = require('http');
 const os = require('os');
 const path = require('path');
+const { pathToFileURL } = require('url');
 const { spawn } = require('child_process');
 
 const DEFAULT_CONFIG = {
@@ -13,7 +14,6 @@ const DEFAULT_CONFIG = {
 
 const LOCAL_HOST = '127.0.0.1';
 const BIND_HOST = '0.0.0.0';
-const LOG_LIMIT = 500;
 const smokeTestMode = process.argv.includes('--smoke-test');
 const SERVICE_KEYS = ['backend', 'gm', 'player'];
 
@@ -23,7 +23,6 @@ let processRegistry = {
   gm: null,
   player: null
 };
-let logBuffer = [];
 
 function getRepoRoot() {
   return path.resolve(__dirname, '../..');
@@ -84,12 +83,30 @@ function getLauncherIconPath() {
   return path.join(getRepoRoot(), 'assets', 'icons', iconFile);
 }
 
+function getLauncherBrandIconPath() {
+  if (app.isPackaged) {
+    return path.join(process.resourcesPath, 'icons', 'icon.svg');
+  }
+
+  return path.join(getRepoRoot(), 'assets', 'icons', 'icon.svg');
+}
+
 function ensureWritableDirectories() {
   fs.mkdirSync(getWritableRoot(), { recursive: true });
   fs.mkdirSync(getDataDir(), { recursive: true });
 }
 
+function ensureLogFile() {
+  ensureWritableDirectories();
+
+  if (!fs.existsSync(getLogPath())) {
+    fs.writeFileSync(getLogPath(), '', 'utf8');
+  }
+}
+
 function appendLog(source, chunk) {
+  ensureLogFile();
+
   const text = chunk.toString();
   const lines = text.split(/\r?\n/).filter(Boolean);
 
@@ -100,17 +117,11 @@ function appendLog(source, chunk) {
   const timestamp = new Date().toISOString();
   const entries = lines.map(line => `${timestamp} [${source}] ${line}`);
 
-  logBuffer.push(...entries);
-  if (logBuffer.length > LOG_LIMIT) {
-    logBuffer = logBuffer.slice(-LOG_LIMIT);
-  }
-
   fs.appendFileSync(getLogPath(), entries.join('\n') + '\n', 'utf8');
 }
 
 function resetLogFile() {
-  ensureWritableDirectories();
-  logBuffer = [];
+  ensureLogFile();
   fs.writeFileSync(getLogPath(), '', 'utf8');
 }
 
@@ -319,11 +330,7 @@ async function getState() {
     config,
     services,
     lanShares: getLanShareUrls(config),
-    runtimeRoot: getRuntimeRoot(),
-    writableRoot: getWritableRoot(),
-    dataDir: getDataDir(),
-    logPath: getLogPath(),
-    logs: [...logBuffer],
+    launcherIconUrl: pathToFileURL(getLauncherBrandIconPath()).href,
     stackRunning: services.backend.running || services.gm.running || services.player.running
   };
 }
@@ -457,10 +464,10 @@ async function runSmokeTest() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1080,
-    height: 760,
-    minWidth: 920,
-    minHeight: 620,
+    width: 960,
+    height: 680,
+    minWidth: 720,
+    minHeight: 520,
     backgroundColor: '#081114',
     icon: getLauncherIconPath(),
     autoHideMenuBar: true,
@@ -505,7 +512,19 @@ ipcMain.handle('launcher:open', async (_event, target) => {
   }
 
   if (target === 'data') {
-    await shell.openPath(getWritableRoot());
+    const errorMessage = await shell.openPath(getWritableRoot());
+    if (errorMessage) {
+      throw new Error(errorMessage);
+    }
+    return;
+  }
+
+  if (target === 'log') {
+    ensureLogFile();
+    const errorMessage = await shell.openPath(getLogPath());
+    if (errorMessage) {
+      throw new Error(errorMessage);
+    }
   }
 });
 
