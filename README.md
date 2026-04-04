@@ -53,6 +53,8 @@ The compose file builds images and exposes the same configurable ports.
 
 The game includes a substantial number of features, and I did my best to make both the GM and Player interfaces as straightforward as possible. Most interface elements can be hovered over with the mouse to display a short explanation of their purpose and usage. This is not intended as a replacement for proper documentation, on which I am still working and will eventually release.
 
+For a tutorial focused on how to start and run a game with Phosphorite, please see [docs/tutorial.md](docs/tutorial.md).
+
 ### Game Time
 
 Control the in‑universe clock and keep every client in sync. The GM can pause, resume, set, advance, or roll back time (era/day/hour/minute/second), and telemetry simulations tick along with it.
