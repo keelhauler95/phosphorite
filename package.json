@@ -1,6 +1,6 @@
 {
   "name": "phosphorite",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Complete rewrite of Phosphorite with proper architecture",
   "private": true,
   "scripts": {
